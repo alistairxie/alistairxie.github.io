@@ -123,7 +123,7 @@
     
     <!--- Seo Part-->
     
-    <link rel="canonical" href="https://alistairxie.github.io/"/>
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/25/androidnotes-初识android-framework/"/>
     <meta name="robots" content="index,follow">
     <meta name="googlebot" content="index,follow">
     <meta name="revisit-after" content="1 days">
@@ -132,15 +132,17 @@
     
         
         <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Alistair&#39;s Blog">
-<meta property="og:url" content="https://alistairxie.github.io/index.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="初识AndroidFramework">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/25/AndroidNotes-%E5%88%9D%E8%AF%86Android-Framework/index.html">
 <meta property="og:site_name" content="Alistair&#39;s Blog">
 <meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-25T03:03:02.000Z">
+<meta property="article:modified_time" content="2025-08-30T02:38:47.767Z">
 <meta property="article:author" content="Alistair Xie">
-<meta property="article:tag" content="Android">
+<meta property="article:tag" content="framwork">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
     
@@ -154,7 +156,7 @@
     
     <title>
         
-            Alistair&#39;s Blog - Welcome to my blog!
+            初识AndroidFramework | Alistair&#39;s Blog
         
     </title>
 
@@ -234,103 +236,17 @@
 <main class="page-container" id="swup">
 
 	
-	
-    <style>
-        .home-banner-container {
-            background: none !important;
-        }
-        .home-article-item,
-        .sidebar-links,
-        .sidebar-content,
-        a.page-number,
-        a.extend,
-        .sidebar-links .links:hover,
-        .right-bottom-tools,
-        footer.footer {
-            background-color: var(--background-color-transparent-80) !important;
-        }
-        .right-bottom-tools:hover,
-        a.page-number:hover,
-        a.extend:hover {
-            background-color: var(--primary-color) !important;
-        }
-        .site-info,
-        .home-article-sticky-label {
-            background-color: var(--background-color-transparent-15) !important;
-        }
-        .home-article-sticky-label {
-            backdrop-filter: none !important;
-        }
-    </style>
-    <div class="home-banner-background transition-fade fixed top-0 left-0 w-screen h-screen scale-125 sm:scale-110 box-border will-change-transform bg-cover">
-        <img src="/img/bg-light.jpg" alt="home-banner-background" class="w-full h-full object-cover dark:hidden">
-        <img src="/img/bg-dark.jpg" alt="home-banner-background" class="w-full h-full object-cover hidden dark:block">
-    </div>
-
-
-<div class="home-banner-container flex justify-center items-center transition-fade relative">
-    
-    <div class="content mt-8 flex flex-col justify-center items-center transition-fade-down">
-        <div class="description flex flex-col justify-center items-center w-screen font-medium text-center"
-        
-        >
-            Alistair的博客
-            
-            
-                <p><i id="subtitle"></i></p>
-            
-        </div>
-        
-            
-            <div class="absolute bottom-0.5 flex flex-row justify-between max-w-[1340px] items-center w-full px-8 sm:px-12">
-                <div class="flex p-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 group rounded-full cursor-pointer flex justify-center items-center aspect-square h-full shadow-redefine-flat hover:shadow-redefine-flat-hover transition-shadow" onclick="scrollToMain()" >
-                    <i class="fa-solid fa-arrow-down fa-fw fa-lg group-hover:translate-y-1 transition-transform"></i>
-                </div>
-                <div class="social-contacts px-6 py-3 bg-gray-300/50 dark:bg-gray-500/40 backdrop-blur-lg border border-white/20 dark:border-gray-500/30 shadow-redefine-flat rounded-full flex flex-row gap-3 items-center">
-                    
-                        
-                            
-                                <span class="social-contact-item github">
-                                    <a target="_blank" href="https://github.com/alistairxie">
-                                        <i class="fa-brands fa-fw fa-lg fa-github"></i>
-                                    </a>
-                                </span>
-                            
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                        
-                    
-                    
-                </div>
-            </div>
-        
-    </div>
-    <script>
-        const scrollToMain = ()=> {
-            console.log('scroll');
-            const target = document.querySelector('.main-content-container');
-            target.scrollIntoView({ behavior: 'smooth'});
-        }
-    </script>
-</div>
-	
 
 	<div class="main-content-container flex flex-col justify-between min-h-dvh">
 		<div class="main-content-header">
 			<header class="navbar-container px-6 md:px-12">
-    <div class="navbar-content transition-navbar has-home-banner">
+    <div class="navbar-content transition-navbar ">
         <div class="left">
             
             <a class="logo-title" href="/">
-                <h1>
+                
                 Alistair&#39;s Blog
-                </h1>
+                
             </a>
         </div>
 
@@ -344,7 +260,7 @@
 
                             <li class="navbar-item">
                                 <!-- Menu -->
-                                <a class="active"
+                                <a class=""
                                    href="/"
                                         >
                                     <i class="fa-regular fa-house fa-fw"></i>
@@ -457,7 +373,7 @@
 
                             <li class="navbar-item">
                                 <!-- Menu -->
-                                <a class="active"
+                                <a class=""
                                    href="/"
                                         >
                                     <i class="fa-regular fa-link fa-fw"></i>
@@ -491,7 +407,7 @@
 
                     <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
                         
-                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
                            href="/"
                         >
                             <span>
@@ -571,7 +487,7 @@
 
                     <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
                         
-                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
                              navbar-data-toggle="submenu-About"
                         >
                             <span>
@@ -615,7 +531,7 @@
 
                     <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
                         
-                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
                            href="/"
                         >
                             <span>
@@ -692,274 +608,51 @@
 
 		<div class="main-content-body transition-fade-up">
 			
-			<div class="home-sidebar-container">
-    <div class="sticky-container sticky">
-        
-        
-            
-                <div class="sidebar-links">
-                    <div class="site-info">
-                        <div class="site-name">Alistair&#39;s Blog</div>
-                        
-                            <div class="announcement">
-                                技术改变世界
-                            </div>
-                        
-                    </div>
-                    
-                        
-                            
-                                <a class="links" href="/archives">
-                                    
-                                        <i class="fa-regular fa-archive icon-space"></i>
-                                    
-                                    <span class="link-name">归档</span>
-                                </a>
-                            
-                        
-                            
-                                <a class="links" href="/tags">
-                                    
-                                        <i class="fa-regular fa-tags icon-space"></i>
-                                    
-                                    <span class="link-name">标签</span>
-                                </a>
-                            
-                        
-                            
-                                <a class="links" href="/categories">
-                                    
-                                        <i class="fa-regular fa-folder icon-space"></i>
-                                    
-                                    <span class="link-name">分类</span>
-                                </a>
-                            
-                        
-                    
-                </div>
-            
-            <div class="sidebar-content"  marginTop >
-                <div class="avatar flex justify-center">
-    <img src="/img/profile.jpg">
-</div>
-                <div class="author flex flex-col justify-center my-2.5 mx-0">
-    <div class="name">Alistair Xie</div>
-    
-        <div class="label">Lv1</div>
-    
-</div>
-                <div class="statistics flex justify-around my-2.5">
-    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
-        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">3</div>
-        <div class="label text-third-text-color text-sm">标签</div>
-    </a>
-    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
-        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">2</div>
-        <div class="label text-third-text-color text-sm">分类</div>
-    </a>
-    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
-        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">4</div>
-        <div class="label text-third-text-color text-sm">文章</div>
-    </a>
-</div>
-            </div>
-        
-
-    </div>
-</div>
-
-			
 
 			<div class="main-content">
-				<div class="home-content-container">
-    <ul class="home-article-list">
-        
-            <li class="home-article-item">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
 
-                
-                    <div class="absolute top-[12px] right-[12px] text-[0.7rem] text-third-text-color rounded-medium bg-background-color-transparent-15 py-[2px] px-[10px] border border-border-color z-1 hover:text-first-text-color cursor-default">
-                        <i class="fa-regular fa-thumbtack mr-[3px] text-[0.65rem]"></i>置顶
-                    </div>
-                
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">初识AndroidFramework</h1>
+			</div>
+			
+		</div>
 
-                
-                    
-                
-
-                
-                    <div id="home-article-thumbnail" class="home-article-thumbnail relative h-[150px] overflow-hidden rounded-t-large">
-                        <a href="/2025/08/21/Git%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-                            <img src="/img/git-banner.jpg" alt="Git版本控制工具学习笔记" class="w-full h-full object-cover dark:brightness-75 transition-all" />
-                        </a>
-                    </div>
-                
-                <div class="flex flex-col gap-5 px-7 pb-7 pt-5">
-                    <h3 class="home-article-title">
-                        <a href="/2025/08/21/Git%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
-                            Git版本控制工具学习笔记
-                        </a>
-                    </h3>
-
-                    <div class="home-article-content markdown-body">
-                        
-                            
-                            一、Git 是什么？—— 理解版本控制的核心价值
-本质定位：Git 是一款开源的分布式版本控制系统，用于跟踪文件（尤其是代码）的修改历史，支持多人协作开发，核心解决 “代码版本混乱、多人修改冲突、历史版本回溯” 三大问题。
-
-与集中式版本控制（如 SVN）的区别：
-
-集中式（SVN）：所有版本数据存储在中央服务器，本地仅保留当前工作文件，断网无法查看历史或提交；
-
-分布式（Git）：每个开发...
-                        
-                    </div>
-
-                    <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fa-solid fa-calendars"></i>&nbsp;
-            <span class="home-article-date" data-date="Thu Aug 21 2025 14:02:32 GMT+0800">
-                
-                    2025-08-21
-                
-            </span>
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv1</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-25 11:03:02</span>
+        <span class="mobile">2025-08-25 11:03:02</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 10:38:47</span>
+            <span class="mobile">2025-08-30 10:38:47</span>
+            <span class="hover-info">更新</span>
         </span>
-        
-            <span class="home-article-category">
-                <i class="fa-solid fa-folders"></i>&nbsp;
-            <ul>
-                
-                
-                    
-                        
-                        <li>
-                            <a href="/categories/%E5%85%B6%E4%BB%96/">其他</a>&nbsp;
-                        </li>
-                    
-                    
-                
-            </ul>
-        </span>
-        
-        
-            <span class="home-article-tag">
-                <i class="fa-solid fa-tags"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/tags/Git/">Git</a>&nbsp;
-                        </li>
-                    
-                </ul>
-            </span>
-        
-    </div>
+    
 
-    <a href="/2025/08/21/Git%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">阅读全文<span class="seo-reader-text">Git版本控制工具学习笔记</span>&nbsp;<i class="fa-solid fa-angle-right"></i></a>
-</div>
-
-                </div>
-            </li>
-        
-            <li class="home-article-item">
-
-                
-                    <div class="absolute top-[12px] right-[12px] text-[0.7rem] text-third-text-color rounded-medium bg-background-color-transparent-15 py-[2px] px-[10px] border border-border-color z-1 hover:text-first-text-color cursor-default">
-                        <i class="fa-regular fa-thumbtack mr-[3px] text-[0.65rem]"></i>置顶
-                    </div>
-                
-
-                
-                    
-                
-
-                
-                    <div id="home-article-thumbnail" class="home-article-thumbnail relative h-[150px] overflow-hidden rounded-t-large">
-                        <a href="/2025/08/02/hello-world/">
-                            <img src="/images/bg-light.jpg" alt="Hello World" class="w-full h-full object-cover dark:brightness-75 transition-all" />
-                        </a>
-                    </div>
-                
-                <div class="flex flex-col gap-5 px-7 pb-7 pt-5">
-                    <h3 class="home-article-title">
-                        <a href="/2025/08/02/hello-world/">
-                            Hello World
-                        </a>
-                    </h3>
-
-                    <div class="home-article-content markdown-body">
-                        
-                            
-                            Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub.
-Qu...
-                        
-                    </div>
-
-                    <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fa-solid fa-calendars"></i>&nbsp;
-            <span class="home-article-date" data-date="Sat Aug 02 2025 19:07:05 GMT+0800">
-                
-                    2025-08-02
-                
-            </span>
-        </span>
-        
-        
-            <span class="home-article-tag">
-                <i class="fa-solid fa-tags"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/tags/Demo1/">Demo1</a>&nbsp;
-                        </li>
-                    
-                </ul>
-            </span>
-        
-    </div>
-
-    <a href="/2025/08/02/hello-world/">阅读全文<span class="seo-reader-text">Hello World</span>&nbsp;<i class="fa-solid fa-angle-right"></i></a>
-</div>
-
-                </div>
-            </li>
-        
-            <li class="home-article-item">
-
-                
-
-                
-
-                
-                <div class="flex flex-col gap-5 px-7 pb-7 pt-7">
-                    <h3 class="home-article-title">
-                        <a href="/2025/08/25/AndroidNotes-Windows%E4%B8%8B%E8%BD%BDAOSP%E6%9F%90%E4%B8%AA%E6%A8%A1%E5%9D%97%E6%BA%90%E7%A0%81/">
-                            Windows 下载 AOSP 某个模块源码
-                        </a>
-                    </h3>
-
-                    <div class="home-article-content markdown-body">
-                        
-                            
-                            在安卓开发中，有时无需下载完整 AOSP 源码（需 100GB+），仅需获取单个模块（如frameworks/native）进行学习或定制。本文将整合在线源码查看工具与高效下载方法，重点补充国内镜像适配、分支管理等关键细节，适配 Windows 系统操作场景。
-一、常用 AOSP 在线源码查看网站（高效查路径 &#x2F; 版本）在线查看源码可先确认模块路径、分支信息，避免盲目下载。以下是 ...
-                        
-                    </div>
-
-                    <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fa-solid fa-calendars"></i>&nbsp;
-            <span class="home-article-date" data-date="Mon Aug 25 2025 11:03:02 GMT+0800">
-                
-                    2025-08-25
-                
-            </span>
-        </span>
-        
-            <span class="home-article-category">
-                <i class="fa-solid fa-folders"></i>&nbsp;
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
             <ul>
                 
                 
@@ -973,110 +666,370 @@ Qu...
                 
             </ul>
         </span>
-        
-        
-            <span class="home-article-tag">
-                <i class="fa-solid fa-tags"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/tags/framwork/">framwork</a>&nbsp;
-                        </li>
-                    
-                </ul>
-            </span>
-        
-    </div>
-
-    <a href="/2025/08/25/AndroidNotes-Windows%E4%B8%8B%E8%BD%BDAOSP%E6%9F%90%E4%B8%AA%E6%A8%A1%E5%9D%97%E6%BA%90%E7%A0%81/">阅读全文<span class="seo-reader-text">Windows 下载 AOSP 某个模块源码</span>&nbsp;<i class="fa-solid fa-angle-right"></i></a>
-</div>
-
-                </div>
-            </li>
-        
-            <li class="home-article-item">
-
-                
-
-                
-
-                
-                <div class="flex flex-col gap-5 px-7 pb-7 pt-7">
-                    <h3 class="home-article-title">
-                        <a href="/2025/08/25/AndroidNotes-%E5%88%9D%E8%AF%86Android-Framework/">
-                            初识AndroidFramework
-                        </a>
-                    </h3>
-
-                    <div class="home-article-content markdown-body">
-                        
-                            
-                            一、Android Framework 是什么？—— 理解系统的 “承上启下” 层
-本质定位：Android Framework 是安卓系统的核心框架层，基于 Linux 内核构建，封装了系统级能力（如 UI 渲染、进程管理、资源调度），并通过Java&#x2F;Kotlin API向上层应用（如你的音乐播放器）提供调用接口，向下层硬件抽象层（HAL）和内核层屏蔽硬件差异。
-
-
-简单说：上层...
-                        
-                    </div>
-
-                    <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fa-solid fa-calendars"></i>&nbsp;
-            <span class="home-article-date" data-date="Mon Aug 25 2025 11:03:02 GMT+0800">
-                
-                    2025-08-25
-                
-            </span>
-        </span>
-        
-            <span class="home-article-category">
-                <i class="fa-solid fa-folders"></i>&nbsp;
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
             <ul>
                 
-                
-                    
-                        
-                        <li>
-                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
-                        </li>
-                    
-                    
+                    <li>
+                        <a href="/tags/framwork/">framwork</a>&nbsp;
+                    </li>
                 
             </ul>
         </span>
-        
-        
-            <span class="home-article-tag">
-                <i class="fa-solid fa-tags"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/tags/framwork/">framwork</a>&nbsp;
-                        </li>
-                    
-                </ul>
-            </span>
-        
-    </div>
+    
 
-    <a href="/2025/08/25/AndroidNotes-%E5%88%9D%E8%AF%86Android-Framework/">阅读全文<span class="seo-reader-text">初识AndroidFramework</span>&nbsp;<i class="fa-solid fa-angle-right"></i></a>
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>2.9k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>10 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
 </div>
 
-                </div>
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<h2 id="一、Android-Framework-是什么？——-理解系统的-“承上启下”-层"><a href="#一、Android-Framework-是什么？——-理解系统的-“承上启下”-层" class="headerlink" title="一、Android Framework 是什么？—— 理解系统的 “承上启下” 层"></a>一、Android Framework 是什么？—— 理解系统的 “承上启下” 层</h2><ol>
+<li><strong>本质定位</strong>：Android Framework 是安卓系统的核心框架层，基于 Linux 内核构建，封装了系统级能力（如 UI 渲染、进程管理、资源调度），并通过<strong>Java&#x2F;Kotlin API</strong>向上层应用（如你的音乐播放器）提供调用接口，向下层硬件抽象层（HAL）和内核层屏蔽硬件差异。</li>
+</ol>
+<ul>
+<li>简单说：上层应用 “不用关心屏幕如何显示、音频如何播放”，只需调用 Framework 提供的 API（如<code>Activity</code>、<code>MediaPlayer</code>），底层实现由 Framework 统一处理。</li>
+</ul>
+<ol start="2">
+<li><strong>核心价值</strong>：</li>
+</ol>
+<ul>
+<li><p>统一标准：为所有安卓应用提供一致的开发接口，确保不同应用在不同设备上的兼容性；</p>
+</li>
+<li><p>简化开发：封装复杂的硬件交互和系统逻辑（如跨进程通信、线程调度），让开发者专注于业务功能；</p>
+</li>
+<li><p>管控资源：负责系统资源（内存、CPU、电量）的分配与管理，保障多应用并发运行的稳定性。</p>
+</li>
+</ul>
+<ol start="3">
+<li><p><strong>与上层应用的关系</strong>：</p>
+<p> 以上层音乐播放器为例，当调用<code>MediaPlayer.start()</code>播放音乐时，实际流程是：</p>
+<p> <code>应用层（MediaPlayer调用）→ Framework层（MediaFramework处理）→ HAL层（音频硬件抽象）→ 硬件层（扬声器输出）</code></p>
+</li>
+</ol>
+<h2 id="二、Android-Framework-核心模块-——-拆解系统的-“功能骨架”"><a href="#二、Android-Framework-核心模块-——-拆解系统的-“功能骨架”" class="headerlink" title="二、Android Framework 核心模块 —— 拆解系统的 “功能骨架”"></a>二、Android Framework 核心模块 —— 拆解系统的 “功能骨架”</h2><p>Framework 包含数十个核心模块，按 “应用开发常用” 和 “系统底层支撑” 分类，重点掌握以下模块：</p>
+<h3 id="（一）应用组件管理模块-——-支撑应用的-“生命周期与交互”"><a href="#（一）应用组件管理模块-——-支撑应用的-“生命周期与交互”" class="headerlink" title="（一）应用组件管理模块 —— 支撑应用的 “生命周期与交互”"></a>（一）应用组件管理模块 —— 支撑应用的 “生命周期与交互”</h3><ol>
+<li><strong>Activity Manager Service（AMS）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心作用：管理所有应用的<code>Activity</code>、<code>Service</code>、<code>BroadcastReceiver</code>、<code>ContentProvider</code>四大组件的生命周期，负责组件的创建、销毁、切换与跨进程调用。</p>
+</li>
+<li><p>关键场景：</p>
+<ul>
+<li><p>当你点击音乐播放器图标时，AMS 会启动应用的<code>Launcher Activity</code>；</p>
+</li>
+<li><p>切换应用时，AMS 会将前台应用的<code>Activity</code>压入后台栈，调度后台应用的<code>Activity</code>到前台。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Package Manager Service（PMS）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心作用：管理应用的安装、卸载、更新，解析应用的<code>AndroidManifest.xml</code>文件（获取组件信息、权限声明、版本号等），并维护系统的应用信息库。</p>
+</li>
+<li><p>关键场景：</p>
+<ul>
+<li><p>安装音乐播放器 APK 时，PMS 会校验 APK 签名、解析组件信息、分配应用唯一 UID；</p>
+</li>
+<li><p>调用<code>getPackageManager().getInstalledPackages()</code>获取已安装应用列表，底层由 PMS 提供数据。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="（二）UI-与交互模块-——-实现应用的-“视觉与操作响应”"><a href="#（二）UI-与交互模块-——-实现应用的-“视觉与操作响应”" class="headerlink" title="（二）UI 与交互模块 —— 实现应用的 “视觉与操作响应”"></a>（二）UI 与交互模块 —— 实现应用的 “视觉与操作响应”</h3><ol>
+<li><strong>View System（视图系统）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心组成：<code>View</code>（基础视图组件，如<code>TextView</code>、<code>Button</code>）和<code>ViewGroup</code>（视图容器，如<code>LinearLayout</code>、<code>RecyclerView</code>），构成 UI 的 “树形结构”，负责 UI 绘制与触摸事件传递。</p>
+</li>
+<li><p>关键机制：</p>
+<ul>
+<li><p><strong>绘制流程</strong>：通过<code>measure()</code>（测量尺寸）→ <code>layout()</code>（确定位置）→ <code>draw()</code>（绘制内容）三步完成 UI 渲染，由 Framework 的<code>ViewRootImpl</code>触发；</p>
+</li>
+<li><p><strong>事件传递</strong>：触摸事件（如点击、滑动）从<code>Activity</code>传递到顶层<code>ViewGroup</code>，再逐层向下分发到目标<code>View</code>，Framework 定义了<code>dispatchTouchEvent()</code>、<code>onInterceptTouchEvent()</code>、<code>onTouchEvent()</code>的分发规则。</p>
+</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Window Manager Service（WMS）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心作用：管理所有应用的窗口（如<code>Activity</code>窗口、弹窗），负责窗口的创建、显示、隐藏、层级排序，以及屏幕旋转、分屏等窗口行为。</p>
+</li>
+<li><p>与 View 的关系：<code>View</code>是窗口内的 UI 元素，<code>Window</code>是<code>View</code>的容器，WMS 通过 “窗口令牌（Window Token）” 标识每个窗口，确保窗口显示顺序和交互正确性。</p>
+</li>
+</ul>
+<h3 id="（三）多媒体模块-——-支撑音视频的-“播放与采集”"><a href="#（三）多媒体模块-——-支撑音视频的-“播放与采集”" class="headerlink" title="（三）多媒体模块 —— 支撑音视频的 “播放与采集”"></a>（三）多媒体模块 —— 支撑音视频的 “播放与采集”</h3><ol>
+<li><strong>Media Framework（媒体框架）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心组件：<code>MediaPlayer</code>（音频 &#x2F; 视频播放）、<code>MediaRecorder</code>（音视频录制）、<code>MediaCodec</code>（音视频编解码），封装了底层的音视频处理逻辑（如解码 H.264、MP3 格式）。</p>
+</li>
+<li><p>实战关联：你开发的音乐播放器中，<code>MediaPlayer.create(this, R.raw.music)</code>调用的就是 Framework 的<code>MediaPlayer</code> API，底层由<code>MediaPlayerService</code>（系统服务）与音频 HAL 交互，实现音乐播放。</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Audio Service（音频服务）</strong>：</li>
+</ol>
+<ul>
+<li>核心作用：管理系统音频资源，如音量控制（铃声、媒体音量）、音频通道切换（扬声器、耳机）、音频焦点管理（多个应用争抢音频播放权时的优先级控制，如音乐播放时来电暂停）。</li>
+</ul>
+<h3 id="（四）数据与存储模块-——-保障应用的-“数据持久化与共享”"><a href="#（四）数据与存储模块-——-保障应用的-“数据持久化与共享”" class="headerlink" title="（四）数据与存储模块 —— 保障应用的 “数据持久化与共享”"></a>（四）数据与存储模块 —— 保障应用的 “数据持久化与共享”</h3><ol>
+<li><strong>Content Provider Framework</strong>：</li>
+</ol>
+<ul>
+<li><p>核心作用：提供跨应用数据共享的标准接口，底层由<code>ContentResolver</code>（应用调用端）和<code>ContentProvider</code>（数据提供端）组成，Framework 负责跨进程数据传输的底层实现。</p>
+</li>
+<li><p>典型场景：读取手机联系人（调用系统<code>ContactsProvider</code>）、获取媒体库音乐文件（调用系统<code>MediaProvider</code>），均依赖此框架。</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>Storage Manager（存储服务）</strong>：</li>
+</ol>
+<ul>
+<li><p>核心作用：管理系统存储（内部存储、外部存储），负责应用私有目录的创建（如<code>/data/data/包名/</code>）、存储权限校验（如 Android 10 及以上的分区存储机制）、文件系统挂载与管理。</p>
+</li>
+<li><p>与 SharedPreferences 的关系：<code>SharedPreferences</code>的 XML 文件存储在应用私有目录，其读写权限由 Storage Manager 管控，确保其他应用无法访问。</p>
+</li>
+</ul>
+<h3 id="（五）底层支撑模块-——-保障系统的-“稳定运行与跨进程通信”"><a href="#（五）底层支撑模块-——-保障系统的-“稳定运行与跨进程通信”" class="headerlink" title="（五）底层支撑模块 —— 保障系统的 “稳定运行与跨进程通信”"></a>（五）底层支撑模块 —— 保障系统的 “稳定运行与跨进程通信”</h3><ol>
+<li><strong>Binder IPC（跨进程通信）</strong>：</li>
+</ol>
+<ul>
+<li>核心定位：Framework 的 “通信 backbone”，是所有跨进程调用（如应用调用系统服务、应用间数据共享）的底层实现方式，相比 Linux 传统 IPC（如管道、Socket），具有高效、安全、易用的优势。</li>
+<li>实战感知：当应用调用<code>getSystemService(Context.ACTIVITY_SERVICE)</code>获取 AMS 实例时，底层通过 Binder IPC 与 AMS 所在的 “system_server” 进程通信，获取的 AMS 是一个 “Binder 代理对象”，实际操作由 AMS 进程执行。</li>
+</ul>
+<ol start="2">
+<li><strong>Power Manager Service（电源服务）</strong>：</li>
+</ol>
+<ul>
+<li>核心作用：管理系统电源状态（如屏幕亮灭、休眠、低电量模式），根据应用需求（如音乐播放时保持屏幕常亮）调整电源策略，平衡功能与功耗。</li>
+</ul>
+<h2 id="三、Android-Framework-核心工作机制-——-理解-“系统如何运转”"><a href="#三、Android-Framework-核心工作机制-——-理解-“系统如何运转”" class="headerlink" title="三、Android Framework 核心工作机制 —— 理解 “系统如何运转”"></a>三、Android Framework 核心工作机制 —— 理解 “系统如何运转”</h2><h3 id="1-系统服务的-“启动与调用”-机制"><a href="#1-系统服务的-“启动与调用”-机制" class="headerlink" title="1. 系统服务的 “启动与调用” 机制"></a>1. 系统服务的 “启动与调用” 机制</h3><ul>
+<li><p><strong>启动流程</strong>：安卓系统启动时，<code>init</code>进程启动<code>Zygote</code>进程（孵化器进程），<code>Zygote</code>创建<code>system_server</code>进程，<code>system_server</code>会启动所有 Framework 核心服务（AMS、PMS、WMS 等），并将服务注册到<code>ServiceManager</code>（系统服务管理器）中。</p>
+</li>
+<li><p><strong>调用流程</strong>：上层应用调用系统服务时，通过<code>Context.getSystemService()</code>获取服务的 “Binder 代理对象”，再通过 Binder IPC 与<code>system_server</code>进程中的实际服务通信，实现 “应用进程→系统进程” 的跨进程调用。</p>
+<p>  示例：应用调用<code>Activity.startActivity()</code>，实际是通过 Binder 调用 AMS 的<code>startActivity()</code>方法，由 AMS 完成<code>Activity</code>的创建与调度。</p>
+</li>
+</ul>
+<h3 id="2-应用进程的-“创建与管理”-机制"><a href="#2-应用进程的-“创建与管理”-机制" class="headerlink" title="2. 应用进程的 “创建与管理” 机制"></a>2. 应用进程的 “创建与管理” 机制</h3><ul>
+<li><p><strong>创建方式</strong>：应用首次启动时，AMS 会请求<code>Zygote</code>进程 “fork”（复制）一个新的应用进程（每个应用一个独立进程，默认进程名与包名一致），<code>Zygote</code>会将 Framework 的核心类库（如<code>android.jar</code>）预加载到新进程，减少内存占用。</p>
+</li>
+<li><p><strong>进程优先级</strong>：AMS 根据应用状态（前台、可见、后台、空进程）为进程分配优先级（oom_adj 值），系统内存不足时，会优先杀死低优先级进程（如后台空进程），保障前台应用运行，这也是 “音乐播放器在后台播放时不易被杀死” 的原因（播放音乐时进程优先级提升）。</p>
+</li>
+</ul>
+<h3 id="3-UI-渲染的-“垂直同步与双缓冲”-机制"><a href="#3-UI-渲染的-“垂直同步与双缓冲”-机制" class="headerlink" title="3. UI 渲染的 “垂直同步与双缓冲” 机制"></a>3. UI 渲染的 “垂直同步与双缓冲” 机制</h3><ul>
+<li><p><strong>垂直同步（VSync）</strong>：Framework 通过<code>SurfaceFlinger</code>（屏幕合成服务）监听屏幕刷新率（如 60Hz，即每 16.6ms 刷新一次），生成 VSync 信号，触发 UI 绘制，避免画面撕裂；</p>
+</li>
+<li><p><strong>双缓冲</strong>：UI 绘制时使用 “前台缓冲”（显示给用户的画面）和 “后台缓冲”（正在绘制的画面），绘制完成后交换两个缓冲的角色，确保用户看到的画面始终是完整的，避免绘制过程中的画面闪烁。</p>
+</li>
+</ul>
+<h2 id="四、Framework-学习与实战关联-——-从-“知其然”-到-“知其所以然”"><a href="#四、Framework-学习与实战关联-——-从-“知其然”-到-“知其所以然”" class="headerlink" title="四、Framework 学习与实战关联 —— 从 “知其然” 到 “知其所以然”"></a>四、Framework 学习与实战关联 —— 从 “知其然” 到 “知其所以然”</h2><h3 id="1-结合上层开发理解-Framework"><a href="#1-结合上层开发理解-Framework" class="headerlink" title="1. 结合上层开发理解 Framework"></a>1. 结合上层开发理解 Framework</h3><ul>
+<li><p>当你开发音乐播放器的<code>Activity</code>时，知道 “<code>onCreate()</code>→<code>onStart()</code>→<code>onResume()</code>” 的生命周期，更要理解 “这是 AMS 在调度<code>Activity</code>时触发的回调，每个生命周期方法对应 AMS 对<code>Activity</code>状态的管理”；</p>
+</li>
+<li><p>当你用<code>RecyclerView</code>显示音乐列表时，知道 “<code>notifyDataSetChanged()</code>刷新列表”，更要理解 “底层是<code>RecyclerView</code>通过 View System 的绘制流程，重新执行<code>measure()</code>、<code>layout()</code>、<code>draw()</code>，更新 UI 视图”。</p>
+</li>
+</ul>
+<h3 id="2-Framework-学习的-“入门路径”"><a href="#2-Framework-学习的-“入门路径”" class="headerlink" title="2. Framework 学习的 “入门路径”"></a>2. Framework 学习的 “入门路径”</h3><ol>
+<li><p><strong>从 “系统服务” 切入</strong>：先聚焦与应用开发最相关的服务（AMS、WMS、PMS），通过官方文档（<a class="link"   target="_blank" rel="noopener" href="https://developer.android.com/reference/android/app/ActivityManager" >Android Developer<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）了解服务的核心 API 与作用；</p>
+</li>
+<li><p><strong>阅读 “核心源码” 片段</strong>：无需通读全部源码，可针对性查看关键类的实现（如<code>Activity</code>的<code>startActivity()</code>、<code>MediaPlayer</code>的<code>start()</code>），理解 API 的底层调用链；</p>
+</li>
+<li><p><strong>通过 “问题排查” 深化认知</strong>：遇到 “ANR（应用无响应）” 时，查看<code>traces.txt</code>日志（由 AMS 生成），分析是主线程阻塞还是系统服务调用超时；遇到 “UI 卡顿” 时，通过<code>SurfaceFlinger</code>日志分析渲染帧率，理解 Framework 的 UI 渲染瓶颈。</p>
+</li>
+</ol>
+<h3 id="3-常见-Framework-相关问题与理解"><a href="#3-常见-Framework-相关问题与理解" class="headerlink" title="3. 常见 Framework 相关问题与理解"></a>3. 常见 Framework 相关问题与理解</h3><ul>
+<li><p><strong>“为什么主线程不能做耗时操作？”</strong>：因为主线程（UI 线程）由 Framework 的<code>Looper</code>管理，负责处理 UI 绘制（VSync 触发的绘制任务）和用户交互事件（如点击），耗时操作会阻塞<code>Looper</code>的消息循环，导致 UI 无法刷新、事件无法响应，最终触发 ANR；</p>
+</li>
+<li><p><strong>“为什么静态注册的 BroadcastReceiver 在 Android 8.0 后部分失效？”</strong>：这是 Framework 的 “后台限制” 策略，由 AMS 管控，目的是减少后台应用对系统资源的占用，需通过动态注册或指定<code>android:exported=&quot;true&quot;</code>并配合权限声明解决；</p>
+</li>
+<li><p><strong>“为什么 SharedPreferences 不适合存储大量数据？”</strong>：因为 Framework 在读写<code>SharedPreferences</code>时，会将整个 XML 文件加载到内存，大量数据会导致内存占用过高，且<code>commit()</code>是同步操作，可能阻塞主线程，底层由 Storage Manager 管理文件 IO，效率低于数据库（如 Room）。</p>
+</li>
+</ul>
+<h2 id="五、Framework-学习总结-——-核心认知与进阶方向"><a href="#五、Framework-学习总结-——-核心认知与进阶方向" class="headerlink" title="五、Framework 学习总结 —— 核心认知与进阶方向"></a>五、Framework 学习总结 —— 核心认知与进阶方向</h2><ol>
+<li><strong>核心认知</strong>：</li>
+</ol>
+<ul>
+<li><p>Framework 是 “上层应用的工具库”，也是 “系统资源的管理者”，所有上层 API 的调用最终都会落地到 Framework 的系统服务或底层模块；</p>
+</li>
+<li><p>学习 Framework 不是为了 “重复造轮子”，而是为了 “理解轮子的原理”—— 当应用出现性能问题（如卡顿、ANR）、兼容性问题（如不同设备 UI 显示异常）时，能从 Framework 层面定位原因。</p>
+</li>
+</ul>
+<ol start="2">
+<li><strong>进阶方向</strong>：</li>
+</ol>
+<ul>
+<li><p>深入理解 Binder IPC：掌握 Binder 的通信原理、权限校验机制，能自定义 Binder 服务实现跨应用通信；</p>
+</li>
+<li><p>研究系统性能优化：从 Framework 层面优化 UI 渲染（如减少过度绘制）、进程管理（如合理设置进程优先级）、电量消耗（如优化 WakeLock 使用）；</p>
+</li>
+<li><p>定制 Framework 功能：基于安卓源码修改 Framework 模块（如定制系统通知样式、扩展 MediaPlayer 支持的音频格式），需掌握源码编译与定制流程。</p>
+</li>
+</ul>
+<p>通过以上内容，可建立对 Android Framework 的整体认知，后续结合你的音乐播放器开发实战（如解决音频播放卡顿、优化列表 UI 渲染），能更深刻地体会 Framework 如何支撑上层应用，逐步从 “会用 API” 向 “理解 API 背后的原理” 进阶。</p>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> 初识AndroidFramework</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-25 11:03:02</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 10:38:47
             </li>
         
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/25/AndroidNotes-初识Android-Framework/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
     </ul>
-
-    <div class="home-paginator px-7 py-5">
-        <div class="paginator">
-	<span class="page-number current">1</span>
 </div>
-  
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/framwork/">#framwork</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/25/AndroidNotes-Windows%E4%B8%8B%E8%BD%BDAOSP%E6%9F%90%E4%B8%AA%E6%A8%A1%E5%9D%97%E6%BA%90%E7%A0%81/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Windows 下载 AOSP 某个模块源码</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/21/Git%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Git版本控制工具学习笔记</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
     </div>
+    
+
+        
+            
+    <div id="waline"></div>
+    <script type="module" data-swup-reload-script>
+      import { init } from '/js/libs/waline.js';
+
+      function loadWaline() {
+        init({
+          el: '#waline',
+          serverURL: 'https://example.example.com',
+          dark: 'body[class~="dark-mode"]',
+          reaction: false,
+          requiredMeta: ['nick', 'mail'],
+          emoji: [],
+                    lang: 'zh-CN',
+        });
+      }
+
+      if (typeof swup !== 'undefined') {
+        loadWaline();
+      } else {
+        window.addEventListener('DOMContentLoaded', loadWaline);
+      }
+    </script>
+
+
+
+        
+    
 </div>
 
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">初识AndroidFramework</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Android-Framework-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E2%80%94%E2%80%94-%E7%90%86%E8%A7%A3%E7%B3%BB%E7%BB%9F%E7%9A%84-%E2%80%9C%E6%89%BF%E4%B8%8A%E5%90%AF%E4%B8%8B%E2%80%9D-%E5%B1%82"><span class="nav-text">一、Android Framework 是什么？—— 理解系统的 “承上启下” 层</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Android-Framework-%E6%A0%B8%E5%BF%83%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E6%8B%86%E8%A7%A3%E7%B3%BB%E7%BB%9F%E7%9A%84-%E2%80%9C%E5%8A%9F%E8%83%BD%E9%AA%A8%E6%9E%B6%E2%80%9D"><span class="nav-text">二、Android Framework 核心模块 —— 拆解系统的 “功能骨架”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89%E5%BA%94%E7%94%A8%E7%BB%84%E4%BB%B6%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E6%94%AF%E6%92%91%E5%BA%94%E7%94%A8%E7%9A%84-%E2%80%9C%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E4%B8%8E%E4%BA%A4%E4%BA%92%E2%80%9D"><span class="nav-text">（一）应用组件管理模块 —— 支撑应用的 “生命周期与交互”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89UI-%E4%B8%8E%E4%BA%A4%E4%BA%92%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E5%AE%9E%E7%8E%B0%E5%BA%94%E7%94%A8%E7%9A%84-%E2%80%9C%E8%A7%86%E8%A7%89%E4%B8%8E%E6%93%8D%E4%BD%9C%E5%93%8D%E5%BA%94%E2%80%9D"><span class="nav-text">（二）UI 与交互模块 —— 实现应用的 “视觉与操作响应”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%B8%89%EF%BC%89%E5%A4%9A%E5%AA%92%E4%BD%93%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E6%94%AF%E6%92%91%E9%9F%B3%E8%A7%86%E9%A2%91%E7%9A%84-%E2%80%9C%E6%92%AD%E6%94%BE%E4%B8%8E%E9%87%87%E9%9B%86%E2%80%9D"><span class="nav-text">（三）多媒体模块 —— 支撑音视频的 “播放与采集”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E5%9B%9B%EF%BC%89%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E4%BF%9D%E9%9A%9C%E5%BA%94%E7%94%A8%E7%9A%84-%E2%80%9C%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%8E%E5%85%B1%E4%BA%AB%E2%80%9D"><span class="nav-text">（四）数据与存储模块 —— 保障应用的 “数据持久化与共享”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%88%E4%BA%94%EF%BC%89%E5%BA%95%E5%B1%82%E6%94%AF%E6%92%91%E6%A8%A1%E5%9D%97-%E2%80%94%E2%80%94-%E4%BF%9D%E9%9A%9C%E7%B3%BB%E7%BB%9F%E7%9A%84-%E2%80%9C%E7%A8%B3%E5%AE%9A%E8%BF%90%E8%A1%8C%E4%B8%8E%E8%B7%A8%E8%BF%9B%E7%A8%8B%E9%80%9A%E4%BF%A1%E2%80%9D"><span class="nav-text">（五）底层支撑模块 —— 保障系统的 “稳定运行与跨进程通信”</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Android-Framework-%E6%A0%B8%E5%BF%83%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6-%E2%80%94%E2%80%94-%E7%90%86%E8%A7%A3-%E2%80%9C%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E8%BF%90%E8%BD%AC%E2%80%9D"><span class="nav-text">三、Android Framework 核心工作机制 —— 理解 “系统如何运转”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%B3%BB%E7%BB%9F%E6%9C%8D%E5%8A%A1%E7%9A%84-%E2%80%9C%E5%90%AF%E5%8A%A8%E4%B8%8E%E8%B0%83%E7%94%A8%E2%80%9D-%E6%9C%BA%E5%88%B6"><span class="nav-text">1. 系统服务的 “启动与调用” 机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%BA%94%E7%94%A8%E8%BF%9B%E7%A8%8B%E7%9A%84-%E2%80%9C%E5%88%9B%E5%BB%BA%E4%B8%8E%E7%AE%A1%E7%90%86%E2%80%9D-%E6%9C%BA%E5%88%B6"><span class="nav-text">2. 应用进程的 “创建与管理” 机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-UI-%E6%B8%B2%E6%9F%93%E7%9A%84-%E2%80%9C%E5%9E%82%E7%9B%B4%E5%90%8C%E6%AD%A5%E4%B8%8E%E5%8F%8C%E7%BC%93%E5%86%B2%E2%80%9D-%E6%9C%BA%E5%88%B6"><span class="nav-text">3. UI 渲染的 “垂直同步与双缓冲” 机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Framework-%E5%AD%A6%E4%B9%A0%E4%B8%8E%E5%AE%9E%E6%88%98%E5%85%B3%E8%81%94-%E2%80%94%E2%80%94-%E4%BB%8E-%E2%80%9C%E7%9F%A5%E5%85%B6%E7%84%B6%E2%80%9D-%E5%88%B0-%E2%80%9C%E7%9F%A5%E5%85%B6%E6%89%80%E4%BB%A5%E7%84%B6%E2%80%9D"><span class="nav-text">四、Framework 学习与实战关联 —— 从 “知其然” 到 “知其所以然”</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BB%93%E5%90%88%E4%B8%8A%E5%B1%82%E5%BC%80%E5%8F%91%E7%90%86%E8%A7%A3-Framework"><span class="nav-text">1. 结合上层开发理解 Framework</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Framework-%E5%AD%A6%E4%B9%A0%E7%9A%84-%E2%80%9C%E5%85%A5%E9%97%A8%E8%B7%AF%E5%BE%84%E2%80%9D"><span class="nav-text">2. Framework 学习的 “入门路径”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%B8%B8%E8%A7%81-Framework-%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%E4%B8%8E%E7%90%86%E8%A7%A3"><span class="nav-text">3. 常见 Framework 相关问题与理解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Framework-%E5%AD%A6%E4%B9%A0%E6%80%BB%E7%BB%93-%E2%80%94%E2%80%94-%E6%A0%B8%E5%BF%83%E8%AE%A4%E7%9F%A5%E4%B8%8E%E8%BF%9B%E9%98%B6%E6%96%B9%E5%90%91"><span class="nav-text">五、Framework 学习总结 —— 核心认知与进阶方向</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
 			</div>
 
 			
@@ -1160,6 +1113,26 @@ Qu...
 		</div>
 	</div>
 
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
 	
 
 	<div class="right-side-tools-container">
