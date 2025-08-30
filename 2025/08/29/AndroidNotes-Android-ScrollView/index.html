@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/29/androidnotes-android-scrollview/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android ScrollView">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/29/AndroidNotes-Android-ScrollView/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-29T13:12:05.000Z">
+<meta property="article:modified_time" content="2025-08-30T14:38:25.352Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            Android ScrollView | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">7</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">22</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">Android ScrollView</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-29 21:12:05</span>
+        <span class="mobile">2025-08-29 21:12:05</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 22:38:25</span>
+            <span class="mobile">2025-08-30 22:38:25</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E7%BB%84%E4%BB%B6/">组件</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>3.8k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>16 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<p>ScrollView 是 Android 系统提供的<strong>垂直滚动容器</strong>，用于承载超出屏幕高度的视图内容，当子视图高度超过 ScrollView 自身高度时，自动触发垂直滚动。其核心价值是解决 “内容溢出屏幕无法完全显示” 的问题，是布局开发中高频使用的组件之一。本文将从基础用法、属性配置、进阶技巧及实战避坑等维度，全面讲解 ScrollView 的使用方法。</p>
+<h2 id="一、基础认知：ScrollView-的核心特性与适用场景"><a href="#一、基础认知：ScrollView-的核心特性与适用场景" class="headerlink" title="一、基础认知：ScrollView 的核心特性与适用场景"></a>一、基础认知：ScrollView 的核心特性与适用场景</h2><h3 id="1-1-核心特性"><a href="#1-1-核心特性" class="headerlink" title="1.1 核心特性"></a>1.1 核心特性</h3><ul>
+<li><p><strong>滚动方向</strong>：默认仅支持<strong>垂直滚动</strong>（若需水平滚动，需使用<code>HorizontalScrollView</code>，二者用法类似，本文以 ScrollView 为例）；</p>
+</li>
+<li><p><strong>子视图限制</strong>：ScrollView 是 “单一子视图容器”，<strong>直接子视图只能有 1 个</strong>（通常为<code>LinearLayout</code>&#x2F;<code>RelativeLayout</code>等容器，再在其中嵌套多个子视图）；</p>
+</li>
+<li><p><strong>滚动触发</strong>：仅当直接子视图的<strong>高度 &gt; ScrollView 的高度</strong>时，才会显示滚动条并允许滚动；若子视图高度不足，ScrollView 会收缩至子视图高度，无滚动效果；</p>
+</li>
+<li><p><strong>滚动反馈</strong>：支持显示滚动条（可配置样式、位置），且能通过代码监听滚动状态、控制滚动行为（如滚动到顶部 &#x2F; 底部）。</p>
+</li>
+</ul>
+<h3 id="1-2-适用场景"><a href="#1-2-适用场景" class="headerlink" title="1.2 适用场景"></a>1.2 适用场景</h3><ul>
+<li><p>承载长文本内容（如协议页面、详情说明）；</p>
+</li>
+<li><p>嵌套表单、列表项等高度超出屏幕的视图（注意：ScrollView 与<code>RecyclerView</code>&#x2F;<code>ListView</code>嵌套需特殊处理，避免滚动冲突）；</p>
+</li>
+<li><p>实现 “整页滚动” 效果（如引导页、长表单页面）。</p>
+</li>
+</ul>
+<h2 id="二、基础用法：ScrollView-的布局配置"><a href="#二、基础用法：ScrollView-的布局配置" class="headerlink" title="二、基础用法：ScrollView 的布局配置"></a>二、基础用法：ScrollView 的布局配置</h2><h3 id="2-1-基本布局结构（XML）"><a href="#2-1-基本布局结构（XML）" class="headerlink" title="2.1 基本布局结构（XML）"></a>2.1 基本布局结构（XML）</h3><p>ScrollView 的核心规则是 “<strong>直接子视图唯一</strong>”，因此需先在 ScrollView 内嵌套一个容器（如<code>LinearLayout</code>），再在容器中添加多个子视图。示例如下：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- ScrollView基本布局：垂直滚动，子视图为LinearLayout --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">宽度占满父容器</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   android:layout_height=&quot;match_parent&quot; <span class="comment">&lt;!-- 高度占满父容器 --&gt;</span></span><br><span class="line"></span><br><span class="line">   android:scrollbars=&quot;vertical&quot;&gt;       <span class="comment">&lt;!-- 显示垂直滚动条（默认开启） --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">&lt;!-- 直接子视图：仅能有1个，此处用LinearLayout承载多个子视图 --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">       <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">       <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">高度自适应子内容</span>（<span class="attr">关键</span>：<span class="attr">需超出ScrollView高度才会滚动</span>） <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">       android:orientation=&quot;vertical&quot;&gt;       <span class="comment">&lt;!-- 垂直排列子视图 --&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 子视图1：长文本（高度可能超出屏幕） --&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:text</span>=<span class="string">&quot;@string/long_text&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">长文本内容</span>，<span class="attr">需在strings.xml中定义</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">           android:textSize=&quot;16sp&quot; /&gt;</span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 子视图2：按钮 --&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:text</span>=<span class="string">&quot;提交&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_marginTop</span>=<span class="string">&quot;20dp&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 其他子视图... --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong>关键注意点</strong>：</li>
+</ul>
+<ol>
+<li><p>ScrollView 的<code>layout_height</code>需设为固定值（如<code>match_parent</code>&#x2F;<code>200dp</code>），若设为<code>wrap_content</code>，会跟随子视图高度拉伸，无法触发滚动；</p>
+</li>
+<li><p>直接子视图（如 LinearLayout）的<code>layout_height</code>需设为<code>wrap_content</code>，确保其高度能自适应内容（若设为<code>match_parent</code>，高度与 ScrollView 一致，无法超出，无滚动效果）。</p>
+</li>
+</ol>
+<h3 id="2-2-核心属性配置"><a href="#2-2-核心属性配置" class="headerlink" title="2.2 核心属性配置"></a>2.2 核心属性配置</h3><p>ScrollView 提供多个属性控制滚动行为、外观，常用属性如下表：</p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+<th>可选值 &#x2F; 示例</th>
+<th>关键说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>android:scrollbars</code></td>
+<td>控制滚动条显示</td>
+<td><code>vertical</code>（显示垂直滚动条，默认）、<code>none</code>（隐藏）</td>
+<td>隐藏滚动条不影响滚动功能，仅隐藏视觉反馈</td>
+</tr>
+<tr>
+<td><code>android:scrollbarStyle</code></td>
+<td>滚动条样式与位置</td>
+<td><code>insideOverlay</code>（默认，滚动条在视图内部，不占空间）、<code>insideInset</code>（滚动条在内部，占空间）、<code>outsideOverlay</code>（滚动条在视图外部，不占空间）、<code>outsideInset</code>（滚动条在外部，占空间）</td>
+<td>推荐用<code>insideOverlay</code>，避免滚动条占用内容空间</td>
+</tr>
+<tr>
+<td><code>android:scrollbarThumbVertical</code></td>
+<td>垂直滚动条 “滑块” 样式（自定义外观）</td>
+<td><code>@drawable/scrollbar_thumb</code>（引用自定义 Drawable）</td>
+<td>需创建 shape 或图片资源，自定义滑块颜色、圆角等</td>
+</tr>
+<tr>
+<td><code>android:scrollbarTrackVertical</code></td>
+<td>垂直滚动条 “轨道” 样式（自定义外观）</td>
+<td><code>@drawable/scrollbar_track</code>（引用自定义 Drawable）</td>
+<td>控制滚动条背景轨道的外观</td>
+</tr>
+<tr>
+<td><code>android:fastScrollEnabled</code></td>
+<td>是否启用 “快速滚动”（拖动滑块快速定位）</td>
+<td><code>true</code>&#x2F;<code>false</code>（默认<code>false</code>）</td>
+<td>启用后滚动条滑块会变大，便于快速拖动</td>
+</tr>
+<tr>
+<td><code>android:overScrollMode</code></td>
+<td>控制 “过度滚动” 行为（滚动到边界后的反馈）</td>
+<td><code>always</code>（始终显示过度滚动效果）、<code>never</code>（禁用）、<code>ifContentScrolls</code>（仅当内容可滚动时显示）</td>
+<td>Android 默认过度滚动时会显示阴影或回弹效果，禁用可避免边界反馈</td>
+</tr>
+<tr>
+<td><code>android:fillViewport</code></td>
+<td>是否让子视图填充 ScrollView 的视口（宽度 &#x2F; 高度）</td>
+<td><code>true</code>&#x2F;<code>false</code>（默认<code>false</code>）</td>
+<td>若子视图高度不足 ScrollView 高度，设为<code>true</code>可让子视图拉伸至 ScrollView 高度（避免底部空白）</td>
+</tr>
+</tbody></table>
+<h4 id="示例：自定义滚动条样式"><a href="#示例：自定义滚动条样式" class="headerlink" title="示例：自定义滚动条样式"></a>示例：自定义滚动条样式</h4><ol>
+<li>创建滚动条滑块（<code>drawable/scrollbar_thumb.xml</code>）：</li>
+</ol>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 滚动条滑块：圆角矩形，蓝色填充 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">shape</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:shape</span>=<span class="string">&quot;rectangle&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">&quot;#3F51B5&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 滑块颜色 --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">corners</span> <span class="attr">android:radius</span>=<span class="string">&quot;8dp&quot;</span> /&gt;</span>  <span class="comment">&lt;!-- 圆角 --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">size</span> <span class="attr">android:width</span>=<span class="string">&quot;6dp&quot;</span> /&gt;</span>       <span class="comment">&lt;!-- 滑块宽度 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li>创建滚动条轨道（<code>drawable/scrollbar_track.xml</code>）：</li>
+</ol>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 滚动条轨道：圆角矩形，灰色填充 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">shape</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:shape</span>=<span class="string">&quot;rectangle&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">&quot;#E0E0E0&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 轨道颜色 --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">corners</span> <span class="attr">android:radius</span>=<span class="string">&quot;8dp&quot;</span> /&gt;</span>  <span class="comment">&lt;!-- 圆角 --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">size</span> <span class="attr">android:width</span>=<span class="string">&quot;6dp&quot;</span> /&gt;</span>       <span class="comment">&lt;!-- 轨道宽度 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li>在 ScrollView 中引用：</li>
+</ol>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:scrollbars</span>=<span class="string">&quot;vertical&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:scrollbarThumbVertical</span>=<span class="string">&quot;@drawable/scrollbar_thumb&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:scrollbarTrackVertical</span>=<span class="string">&quot;@drawable/scrollbar_track&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:scrollbarStyle</span>=<span class="string">&quot;insideOverlay&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">&lt;!-- 子视图... --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="三、代码控制：监听滚动与主动控制滚动"><a href="#三、代码控制：监听滚动与主动控制滚动" class="headerlink" title="三、代码控制：监听滚动与主动控制滚动"></a>三、代码控制：监听滚动与主动控制滚动</h2><p>除 XML 布局配置外，可通过代码监听 ScrollView 的滚动状态，或主动控制滚动到指定位置（如滚动到顶部、底部、指定视图）。</p>
+<h3 id="3-1-监听滚动事件"><a href="#3-1-监听滚动事件" class="headerlink" title="3.1 监听滚动事件"></a>3.1 监听滚动事件</h3><p>通过<code>setOnScrollChangeListener</code>（Android 23+，API 23）或自定义<code>OnScrollListener</code>（兼容低版本）监听滚动位置、滚动状态。</p>
+<h4 id="示例-1：Android-23-原生监听（推荐）"><a href="#示例-1：Android-23-原生监听（推荐）" class="headerlink" title="示例 1：Android 23+ 原生监听（推荐）"></a>示例 1：Android 23+ 原生监听（推荐）</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.os.Build;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.view.ViewTreeObserver;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.widget.ScrollView;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ScrollViewActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> ScrollView scrollView;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">       setContentView(R.layout.activity_scroll_view);</span><br><span class="line"></span><br><span class="line">       scrollView = findViewById(R.id.scroll_view);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 监听滚动事件（Android 23+）</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M) &#123;</span><br><span class="line"></span><br><span class="line">           scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -&gt; &#123;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// scrollX：水平滚动距离（ScrollView为0，因仅垂直滚动）</span></span><br><span class="line"></span><br><span class="line">               <span class="comment">// scrollY：垂直滚动距离（当前滚动到的位置，单位px）</span></span><br><span class="line"></span><br><span class="line">               <span class="comment">// oldScrollX/oldScrollY：上一次的滚动距离</span></span><br><span class="line"></span><br><span class="line">               <span class="comment">// 示例1：判断是否滚动到顶部（scrollY == 0）</span></span><br><span class="line"></span><br><span class="line">               <span class="keyword">if</span> (scrollY == <span class="number">0</span>) &#123;</span><br><span class="line"></span><br><span class="line">                   <span class="comment">// 逻辑：如显示“回到顶部”按钮（隐藏）</span></span><br><span class="line"></span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// 示例2：判断是否滚动到底部（scrollY + 视图高度 == 子视图总高度）</span></span><br><span class="line"></span><br><span class="line">               <span class="type">int</span> <span class="variable">scrollViewHeight</span> <span class="operator">=</span> scrollView.getHeight(); <span class="comment">// ScrollView自身高度</span></span><br><span class="line"></span><br><span class="line">               <span class="type">int</span> <span class="variable">childHeight</span> <span class="operator">=</span> scrollView.getChildAt(<span class="number">0</span>).getHeight(); <span class="comment">// 直接子视图总高度</span></span><br><span class="line"></span><br><span class="line">               <span class="keyword">if</span> (scrollY + scrollViewHeight &gt;= childHeight - <span class="number">10</span>) &#123; <span class="comment">// 减10px避免精度问题</span></span><br><span class="line"></span><br><span class="line">                   <span class="comment">// 逻辑：如加载更多数据、显示“已到底部”提示</span></span><br><span class="line"></span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               <span class="comment">// 示例3：滚动距离超过200px时，显示“回到顶部”按钮</span></span><br><span class="line"></span><br><span class="line">               <span class="keyword">if</span> (scrollY &gt; <span class="number">200</span>) &#123;</span><br><span class="line"></span><br><span class="line">                   <span class="comment">// 显示按钮</span></span><br><span class="line"></span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">                   <span class="comment">// 隐藏按钮</span></span><br><span class="line"></span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">           &#125;);</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="示例-2：兼容低版本（Android-23-以下）"><a href="#示例-2：兼容低版本（Android-23-以下）" class="headerlink" title="示例 2：兼容低版本（Android 23 以下）"></a>示例 2：兼容低版本（Android 23 以下）</h4><p>通过<code>ViewTreeObserver.OnScrollChangedListener</code>实现兼容：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 兼容低版本的滚动监听</span></span><br><span class="line"></span><br><span class="line">scrollView.getViewTreeObserver().addOnScrollChangedListener(() -&gt; &#123;</span><br><span class="line"></span><br><span class="line">   <span class="type">int</span> <span class="variable">scrollY</span> <span class="operator">=</span> scrollView.getScrollY(); <span class="comment">// 获取垂直滚动距离</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 逻辑与上述示例一致</span></span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="3-2-主动控制滚动"><a href="#3-2-主动控制滚动" class="headerlink" title="3.2 主动控制滚动"></a>3.2 主动控制滚动</h3><p>通过 ScrollView 的方法主动控制滚动位置，常用方法如下：</p>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>作用</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>scrollTo(int x, int y)</code></td>
+<td>滚动到指定坐标（绝对位置）</td>
+<td><code>scrollView.scrollTo(0, 500)</code>：滚动到垂直 500px 位置（x&#x3D;0，因无水平滚动）</td>
+</tr>
+<tr>
+<td><code>scrollBy(int dx, int dy)</code></td>
+<td>相对当前位置滚动指定距离</td>
+<td><code>scrollView.scrollBy(0, 200)</code>：从当前位置向下滚动 200px（dy 为正向下，负向上）</td>
+</tr>
+<tr>
+<td><code>fullScroll(int direction)</code></td>
+<td>滚动到顶部或底部（便捷方法）</td>
+<td><code>scrollView.fullScroll(ScrollView.FOCUS_UP)</code>：滚动到顶部；<code>scrollView.fullScroll(ScrollView.FOCUS_DOWN)</code>：滚动到底部</td>
+</tr>
+<tr>
+<td><code>smoothScrollTo(int x, int y)</code></td>
+<td>平滑滚动到指定坐标（带动画效果）</td>
+<td><code>scrollView.smoothScrollTo(0, 1000)</code>：平滑滚动到垂直 1000px 位置</td>
+</tr>
+<tr>
+<td><code>smoothScrollBy(int dx, int dy)</code></td>
+<td>相对当前位置平滑滚动指定距离</td>
+<td><code>scrollView.smoothScrollBy(0, -300)</code>：从当前位置向上平滑滚动 300px</td>
+</tr>
+</tbody></table>
+<h4 id="关键注意点"><a href="#关键注意点" class="headerlink" title="关键注意点"></a>关键注意点</h4><ul>
+<li><p><code>scrollTo</code>&#x2F;<code>scrollBy</code>是 “瞬时滚动”（无动画），<code>smoothScrollTo</code>&#x2F;<code>smoothScrollBy</code>是 “平滑滚动”（有动画）；</p>
+</li>
+<li><p>调用滚动方法时，需确保 ScrollView 及其子视图已完成布局（否则<code>getChildAt(0).getHeight()</code>等方法返回 0，滚动无效）。若需在页面加载时自动滚动，需延迟调用或在<code>OnGlobalLayoutListener</code>中执行：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 页面加载时自动平滑滚动到顶部（确保布局完成后执行）</span></span><br><span class="line"></span><br><span class="line">scrollView.getViewTreeObserver().addOnGlobalLayoutListener(<span class="keyword">new</span> <span class="title class_">ViewTreeObserver</span>.OnGlobalLayoutListener() &#123;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onGlobalLayout</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 移除监听器（避免重复触发）</span></span><br><span class="line"></span><br><span class="line">       scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(<span class="built_in">this</span>);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 自动平滑滚动到顶部</span></span><br><span class="line"></span><br><span class="line">       scrollView.smoothScrollTo(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="四、进阶场景：ScrollView-的常见需求实现"><a href="#四、进阶场景：ScrollView-的常见需求实现" class="headerlink" title="四、进阶场景：ScrollView 的常见需求实现"></a>四、进阶场景：ScrollView 的常见需求实现</h2><h3 id="4-1-实现-“回到顶部”-功能"><a href="#4-1-实现-“回到顶部”-功能" class="headerlink" title="4.1 实现 “回到顶部” 功能"></a>4.1 实现 “回到顶部” 功能</h3><p>结合滚动监听与主动滚动，添加 “回到顶部” 按钮，点击后平滑滚动到顶部：</p>
+<ol>
+<li>XML 布局添加按钮（默认隐藏）：</li>
+</ol>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 回到顶部按钮：位于屏幕右下角，默认隐藏 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:id</span>=<span class="string">&quot;@+id/btn_back_to_top&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:text</span>=<span class="string">&quot;回到顶部&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_alignParentBottom</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_alignParentEnd</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_margin</span>=<span class="string">&quot;20dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:visibility</span>=<span class="string">&quot;gone&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 默认隐藏 --&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li>代码逻辑：</li>
+</ol>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Button btnBackToTop;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// ... 其他初始化</span></span><br><span class="line"></span><br><span class="line">   btnBackToTop = findViewById(R.id.btn_back_to_top);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 滚动监听：滚动超过200px显示按钮，否则隐藏</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M) &#123;</span><br><span class="line"></span><br><span class="line">       scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -&gt; &#123;</span><br><span class="line"></span><br><span class="line">           btnBackToTop.setVisibility(scrollY &gt; <span class="number">200</span> ? View.VISIBLE : View.GONE);</span><br><span class="line"></span><br><span class="line">       &#125;);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 按钮点击事件：平滑滚动到顶部</span></span><br><span class="line"></span><br><span class="line">   btnBackToTop.setOnClickListener(v -&gt; &#123;</span><br><span class="line"></span><br><span class="line">       scrollView.smoothScrollTo(<span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">   &#125;);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="4-2-ScrollView-与-RecyclerView-嵌套（解决滚动冲突）"><a href="#4-2-ScrollView-与-RecyclerView-嵌套（解决滚动冲突）" class="headerlink" title="4.2 ScrollView 与 RecyclerView 嵌套（解决滚动冲突）"></a>4.2 ScrollView 与 RecyclerView 嵌套（解决滚动冲突）</h3><p>ScrollView（垂直滚动）与 RecyclerView（垂直滚动）嵌套时，会出现 “滚动不流畅”“RecyclerView 高度显示不全” 的问题，需通过以下配置解决：</p>
+<h4 id="问题-1：RecyclerView-高度显示不全（仅显示-1-行）"><a href="#问题-1：RecyclerView-高度显示不全（仅显示-1-行）" class="headerlink" title="问题 1：RecyclerView 高度显示不全（仅显示 1 行）"></a>问题 1：RecyclerView 高度显示不全（仅显示 1 行）</h4><ul>
+<li><p><strong>原因</strong>：RecyclerView 在 ScrollView 中，默认高度会按<code>wrap_content</code>计算，但 RecyclerView 的<code>wrap_content</code>在嵌套时无法正确测量高度；</p>
+</li>
+<li><p><strong>解决</strong>：自定义 RecyclerView，重写<code>onMeasure</code>方法，强制测量所有子项高度：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.content.Context;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.util.AttributeSet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 自定义RecyclerView：解决嵌套ScrollView时高度显示不全问题</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FullHeightRecyclerView</span> <span class="keyword">extends</span> <span class="title class_">RecyclerView</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">FullHeightRecyclerView</span><span class="params">(Context context)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>(context);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">FullHeightRecyclerView</span><span class="params">(Context context, AttributeSet attrs)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>(context, attrs);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">FullHeightRecyclerView</span><span class="params">(Context context, AttributeSet attrs, <span class="type">int</span> defStyleAttr)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>(context, attrs, defStyleAttr);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onMeasure</span><span class="params">(<span class="type">int</span> widthSpec, <span class="type">int</span> heightSpec)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 强制设置高度为“包裹所有内容”（UNSPECIFIED模式）</span></span><br><span class="line"></span><br><span class="line">       <span class="type">int</span> <span class="variable">expandSpec</span> <span class="operator">=</span> MeasureSpec.makeMeasureSpec(Integer.MAX_VALUE &gt;&gt; <span class="number">2</span>, MeasureSpec.AT_MOST);</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>.onMeasure(widthSpec, expandSpec);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>在 XML 中使用自定义 RecyclerView：</li>
+</ul>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;<span class="name">LinearLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">       <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">       <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">       <span class="attr">android:orientation</span>=<span class="string">&quot;vertical&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 其他子视图... --&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 使用自定义RecyclerView --&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="tag">&lt;<span class="name">com.example.myapp.FullHeightRecyclerView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">           <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">&lt;!-- 其他子视图... --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="tag">&lt;/<span class="name">LinearLayout</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h4 id="问题-2：滚动冲突（ScrollView-与-RecyclerView-滚动不流畅）"><a href="#问题-2：滚动冲突（ScrollView-与-RecyclerView-滚动不流畅）" class="headerlink" title="问题 2：滚动冲突（ScrollView 与 RecyclerView 滚动不流畅）"></a>问题 2：滚动冲突（ScrollView 与 RecyclerView 滚动不流畅）</h4><ul>
+<li><p><strong>原因</strong>：两个垂直滚动容器嵌套，触摸事件分发混乱，导致滚动时卡顿或触发错误的容器滚动；</p>
+</li>
+<li><p><strong>解决</strong>：禁止 RecyclerView 的滚动，让 ScrollView 接管所有滚动（因 RecyclerView 已显示全部内容，无需自身滚动）：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取自定义RecyclerView实例</span></span><br><span class="line"></span><br><span class="line"><span class="type">FullHeightRecyclerView</span> <span class="variable">recyclerView</span> <span class="operator">=</span> findViewById(R.id.recycler_view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 禁止RecyclerView滚动（关键）</span></span><br><span class="line"></span><br><span class="line">recyclerView.setNestedScrollingEnabled(<span class="literal">false</span>);</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong>原理</strong>：<code>setNestedScrollingEnabled(false)</code>关闭 RecyclerView 的嵌套滚动功能，使其不再处理触摸滚动事件，所有滚动事件由父容器 ScrollView 处理，解决冲突。</li>
+</ul>
+<h3 id="4-3-禁止-ScrollView-滚动（特定场景需求）"><a href="#4-3-禁止-ScrollView-滚动（特定场景需求）" class="headerlink" title="4.3 禁止 ScrollView 滚动（特定场景需求）"></a>4.3 禁止 ScrollView 滚动（特定场景需求）</h3><p>部分场景下需临时禁止 ScrollView 滚动（如弹出弹窗时），可通过重写 ScrollView 的<code>onTouchEvent</code>方法实现：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 自定义ScrollView：支持动态禁止滚动</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomScrollView</span> <span class="keyword">extends</span> <span class="title class_">ScrollView</span> &#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">isScrollEnabled</span> <span class="operator">=</span> <span class="literal">true</span>; <span class="comment">// 默认允许滚动</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="title function_">CustomScrollView</span><span class="params">(Context context)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="built_in">super</span>(context);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 其他构造方法...</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">// 设置是否允许滚动</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setScrollEnabled</span><span class="params">(<span class="type">boolean</span> enabled)</span> &#123;</span><br><span class="line"></span><br><span class="line">       isScrollEnabled = enabled;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">onTouchEvent</span><span class="params">(MotionEvent ev)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 若禁止滚动，返回false，不处理触摸事件</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (!isScrollEnabled) &#123;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// 允许滚动，正常处理触摸事件</span></span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> <span class="built_in">super</span>.onTouchEvent(ev);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 可选：禁止通过代码滚动（如scrollTo、smoothScrollTo）</span></span><br><span class="line"></span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">scrollTo</span><span class="params">(<span class="type">int</span> x, <span class="type">int</span> y)</span> &#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (isScrollEnabled) &#123;</span><br><span class="line"></span><br><span class="line">           <span class="built_in">super</span>.scrollTo(x, y);</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>使用时动态控制：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">CustomScrollView</span> <span class="variable">customScrollView</span> <span class="operator">=</span> findViewById(R.id.custom_scroll_view);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 禁止滚动（如弹窗弹出时）</span></span><br><span class="line"></span><br><span class="line">customScrollView.setScrollEnabled(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 允许滚动（如弹窗关闭时）</span></span><br><span class="line"></span><br><span class="line">customScrollView.setScrollEnabled(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="五、实战避坑指南：这些错误-90-的开发者都踩过"><a href="#五、实战避坑指南：这些错误-90-的开发者都踩过" class="headerlink" title="五、实战避坑指南：这些错误 90% 的开发者都踩过"></a>五、实战避坑指南：这些错误 90% 的开发者都踩过</h2><h3 id="5-1-错误-1：ScrollView-内嵌套多个直接子视图，导致布局报错"><a href="#5-1-错误-1：ScrollView-内嵌套多个直接子视图，导致布局报错" class="headerlink" title="5.1 错误 1：ScrollView 内嵌套多个直接子视图，导致布局报错"></a>5.1 错误 1：ScrollView 内嵌套多个直接子视图，导致布局报错</h3><ul>
+<li><p><strong>现象</strong>：XML 布局编译报错 “ScrollView can host only one direct child”；</p>
+</li>
+<li><p><strong>原因</strong>：ScrollView 是单一子视图容器，直接子视图数量超过 1 个；</p>
+</li>
+<li><p><strong>解决</strong>：在 ScrollView 内嵌套一个容器（如 LinearLayout&#x2F;RelativeLayout&#x2F;ConstraintLayout），再将所有子视图放入该容器中（参考 2.1 节基础布局）。</p>
+</li>
+</ul>
+<h3 id="5-2-错误-2：ScrollView-无法滚动，无任何滚动效果"><a href="#5-2-错误-2：ScrollView-无法滚动，无任何滚动效果" class="headerlink" title="5.2 错误 2：ScrollView 无法滚动，无任何滚动效果"></a>5.2 错误 2：ScrollView 无法滚动，无任何滚动效果</h3><ul>
+<li><p><strong>现象</strong>：子视图高度超出屏幕，但 ScrollView 无法滚动；</p>
+</li>
+<li><p><strong>原因排查</strong>：</p>
+</li>
+</ul>
+<ol>
+<li><p>ScrollView 的<code>layout_height</code>设为<code>wrap_content</code>：导致 ScrollView 跟随子视图高度拉伸，无滚动空间；</p>
+</li>
+<li><p>直接子视图的<code>layout_height</code>设为<code>match_parent</code>：高度与 ScrollView 一致，无法超出；</p>
+</li>
+<li><p>子视图实际高度未超出 ScrollView：需确认子视图内容是否足够长（如长文本、多个子项）；</p>
+</li>
+</ol>
+<ul>
+<li><p><strong>解决</strong>：</p>
+<ul>
+<li><p>ScrollView 的<code>layout_height</code>设为<code>match_parent</code>或固定值（如<code>300dp</code>）；</p>
+</li>
+<li><p>直接子视图的<code>layout_height</code>设为<code>wrap_content</code>；</p>
+</li>
+<li><p>确保子视图内容高度超过 ScrollView 高度（可通过<code>scrollView.getChildAt(0).getHeight()</code>打印日志确认）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="5-3-错误-3：ScrollView-滚动到顶部-底部后，继续滚动出现-“阴影回弹”"><a href="#5-3-错误-3：ScrollView-滚动到顶部-底部后，继续滚动出现-“阴影回弹”" class="headerlink" title="5.3 错误 3：ScrollView 滚动到顶部 &#x2F; 底部后，继续滚动出现 “阴影回弹”"></a>5.3 错误 3：ScrollView 滚动到顶部 &#x2F; 底部后，继续滚动出现 “阴影回弹”</h3><ul>
+<li><p><strong>现象</strong>：滚动到边界后继续拖动，屏幕边缘出现阴影（Android 5.0+）或回弹效果，影响用户体验；</p>
+</li>
+<li><p><strong>原因</strong>：Android 默认启用 “过度滚动”（OverScroll）效果；</p>
+</li>
+<li><p><strong>解决</strong>：通过<code>android:overScrollMode</code>属性禁用过度滚动：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ScrollView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:overScrollMode</span>=<span class="string">&quot;never&quot;</span>&gt;</span> <span class="comment">&lt;!-- 禁用过度滚动效果 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">ScrollView</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="5-4-错误-4：ScrollView-与-EditText-嵌套，EditText-获取焦点后被键盘遮挡"><a href="#5-4-错误-4：ScrollView-与-EditText-嵌套，EditText-获取焦点后被键盘遮挡" class="headerlink" title="5.4 错误 4：ScrollView 与 EditText 嵌套，EditText 获取焦点后被键盘遮挡"></a>5.4 错误 4：ScrollView 与 EditText 嵌套，EditText 获取焦点后被键盘遮挡</h3><ul>
+<li><p><strong>现象</strong>：ScrollView 内的 EditText 位于屏幕下方，点击获取焦点后，软键盘弹出遮挡 EditText；</p>
+</li>
+<li><p><strong>原因</strong>：软键盘弹出时，系统未自动调整 ScrollView 的滚动位置；</p>
+</li>
+<li><p><strong>解决</strong>：</p>
+</li>
+</ul>
+<ol>
+<li>在 AndroidManifest.xml 中，给当前 Activity 添加<code>android:windowSoftInputMode</code>属性，设置键盘弹出时调整布局：</li>
+</ol>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:name</span>=<span class="string">&quot;.ScrollViewActivity&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">   <span class="attr">android:windowSoftInputMode</span>=<span class="string">&quot;adjustResize|stateHidden&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">&lt;!-- adjustResize：键盘弹出时调整Activity布局高度；stateHidden：默认隐藏键盘 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li>（可选）通过代码监听 EditText 焦点变化，自动滚动到 EditText 位置：</li>
+</ol>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">EditText</span> <span class="variable">editText</span> <span class="operator">=</span> findViewById(R.id.edit_text);</span><br><span class="line"></span><br><span class="line">editText.setOnFocusChangeListener((v, hasFocus) -&gt; &#123;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (hasFocus) &#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// EditText获取焦点，平滑滚动到其位置（需计算Y坐标）</span></span><br><span class="line"></span><br><span class="line">       <span class="type">int</span>\[] location = <span class="keyword">new</span> <span class="title class_">int</span>\[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">       editText.getLocationOnScreen(location); <span class="comment">// 获取EditText在屏幕上的坐标</span></span><br><span class="line"></span><br><span class="line">       <span class="type">int</span> <span class="variable">editTextY</span> <span class="operator">=</span> location\[<span class="number">1</span>]; <span class="comment">// Y坐标（垂直位置）</span></span><br><span class="line"></span><br><span class="line">       <span class="comment">// 滚动到EditText位置（可减去一定距离，避免被键盘完全遮挡）</span></span><br><span class="line"></span><br><span class="line">       scrollView.smoothScrollTo(<span class="number">0</span>, editTextY - <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> Android ScrollView</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-29 21:12:05</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 22:38:25
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/29/AndroidNotes-Android-ScrollView/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/29/AndroidNotes-Android-Toast/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Android Toast</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/29/AndroidNotes-Android-Notification/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Android Notification</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">Android ScrollView</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E8%AE%A4%E7%9F%A5%EF%BC%9AScrollView-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7%E4%B8%8E%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">一、基础认知：ScrollView 的核心特性与适用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E7%94%A8%E6%B3%95%EF%BC%9AScrollView-%E7%9A%84%E5%B8%83%E5%B1%80%E9%85%8D%E7%BD%AE"><span class="nav-number">2.</span> <span class="nav-text">二、基础用法：ScrollView 的布局配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%9F%BA%E6%9C%AC%E5%B8%83%E5%B1%80%E7%BB%93%E6%9E%84%EF%BC%88XML%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 基本布局结构（XML）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%A0%B8%E5%BF%83%E5%B1%9E%E6%80%A7%E9%85%8D%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 核心属性配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E4%BB%A3%E7%A0%81%E6%8E%A7%E5%88%B6%EF%BC%9A%E7%9B%91%E5%90%AC%E6%BB%9A%E5%8A%A8%E4%B8%8E%E4%B8%BB%E5%8A%A8%E6%8E%A7%E5%88%B6%E6%BB%9A%E5%8A%A8"><span class="nav-number">3.</span> <span class="nav-text">三、代码控制：监听滚动与主动控制滚动</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E7%9B%91%E5%90%AC%E6%BB%9A%E5%8A%A8%E4%BA%8B%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 监听滚动事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E4%B8%BB%E5%8A%A8%E6%8E%A7%E5%88%B6%E6%BB%9A%E5%8A%A8"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 主动控制滚动</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%BF%9B%E9%98%B6%E5%9C%BA%E6%99%AF%EF%BC%9AScrollView-%E7%9A%84%E5%B8%B8%E8%A7%81%E9%9C%80%E6%B1%82%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">四、进阶场景：ScrollView 的常见需求实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AE%9E%E7%8E%B0-%E2%80%9C%E5%9B%9E%E5%88%B0%E9%A1%B6%E9%83%A8%E2%80%9D-%E5%8A%9F%E8%83%BD"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 实现 “回到顶部” 功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-ScrollView-%E4%B8%8E-RecyclerView-%E5%B5%8C%E5%A5%97%EF%BC%88%E8%A7%A3%E5%86%B3%E6%BB%9A%E5%8A%A8%E5%86%B2%E7%AA%81%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 ScrollView 与 RecyclerView 嵌套（解决滚动冲突）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E7%A6%81%E6%AD%A2-ScrollView-%E6%BB%9A%E5%8A%A8%EF%BC%88%E7%89%B9%E5%AE%9A%E5%9C%BA%E6%99%AF%E9%9C%80%E6%B1%82%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 禁止 ScrollView 滚动（特定场景需求）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E6%88%98%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E8%BF%99%E4%BA%9B%E9%94%99%E8%AF%AF-90-%E7%9A%84%E5%BC%80%E5%8F%91%E8%80%85%E9%83%BD%E8%B8%A9%E8%BF%87"><span class="nav-number">5.</span> <span class="nav-text">五、实战避坑指南：这些错误 90% 的开发者都踩过</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E9%94%99%E8%AF%AF-1%EF%BC%9AScrollView-%E5%86%85%E5%B5%8C%E5%A5%97%E5%A4%9A%E4%B8%AA%E7%9B%B4%E6%8E%A5%E5%AD%90%E8%A7%86%E5%9B%BE%EF%BC%8C%E5%AF%BC%E8%87%B4%E5%B8%83%E5%B1%80%E6%8A%A5%E9%94%99"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 错误 1：ScrollView 内嵌套多个直接子视图，导致布局报错</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E9%94%99%E8%AF%AF-2%EF%BC%9AScrollView-%E6%97%A0%E6%B3%95%E6%BB%9A%E5%8A%A8%EF%BC%8C%E6%97%A0%E4%BB%BB%E4%BD%95%E6%BB%9A%E5%8A%A8%E6%95%88%E6%9E%9C"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 错误 2：ScrollView 无法滚动，无任何滚动效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E9%94%99%E8%AF%AF-3%EF%BC%9AScrollView-%E6%BB%9A%E5%8A%A8%E5%88%B0%E9%A1%B6%E9%83%A8-%E5%BA%95%E9%83%A8%E5%90%8E%EF%BC%8C%E7%BB%A7%E7%BB%AD%E6%BB%9A%E5%8A%A8%E5%87%BA%E7%8E%B0-%E2%80%9C%E9%98%B4%E5%BD%B1%E5%9B%9E%E5%BC%B9%E2%80%9D"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 错误 3：ScrollView 滚动到顶部 &#x2F; 底部后，继续滚动出现 “阴影回弹”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E9%94%99%E8%AF%AF-4%EF%BC%9AScrollView-%E4%B8%8E-EditText-%E5%B5%8C%E5%A5%97%EF%BC%8CEditText-%E8%8E%B7%E5%8F%96%E7%84%A6%E7%82%B9%E5%90%8E%E8%A2%AB%E9%94%AE%E7%9B%98%E9%81%AE%E6%8C%A1"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 错误 4：ScrollView 与 EditText 嵌套，EditText 获取焦点后被键盘遮挡</span></a></li></ol></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 22 篇文章
+                    </span>
+                    
+                        <span>
+                            共 57.9k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>

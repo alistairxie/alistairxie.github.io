@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/29/androidnotes-android-notification/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Notification">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/29/AndroidNotes-Android-Notification/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-29T13:12:05.000Z">
+<meta property="article:modified_time" content="2025-08-30T14:37:46.440Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            Android Notification | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">7</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">22</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">Android Notification</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-29 21:12:05</span>
+        <span class="mobile">2025-08-29 21:12:05</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 22:37:46</span>
+            <span class="mobile">2025-08-30 22:37:46</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E7%BB%84%E4%BB%B6/">组件</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>4k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>16 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<p>Notification（通知）是 Android 系统提供的跨页面消息提醒组件，用于在应用后台或前台时，向用户推送重要信息（如消息通知、下载进度、日程提醒）。它可显示在状态栏、下拉通知栏，支持点击跳转、交互操作（如 “回复”“取消”），是提升用户粘性的核心工具。本文所有代码采用 Java 编写，从基础使用、类型分类、进阶功能到权限适配展开，帮助你灵活应对各类通知场景。</p>
+<h2 id="一、基础认知：Notification-的核心特性与分类"><a href="#一、基础认知：Notification-的核心特性与分类" class="headerlink" title="一、基础认知：Notification 的核心特性与分类"></a>一、基础认知：Notification 的核心特性与分类</h2><h3 id="1-1-核心特性"><a href="#1-1-核心特性" class="headerlink" title="1.1 核心特性"></a>1.1 核心特性</h3><ul>
+<li><p><strong>跨页面性</strong>：无论应用处于前台、后台还是关闭状态，均可触发通知（需通过 Service、WorkManager 等后台组件）；</p>
+</li>
+<li><p><strong>可交互性</strong>：支持设置点击事件（跳转 Activity&#x2F;Fragment）、添加操作按钮（如 “回复消息”“查看详情”）；</p>
+</li>
+<li><p><strong>多形态展示</strong>：支持普通文本通知、折叠式通知（含大图 &#x2F; 长文本）、悬浮式通知（Android 5.0+）、进度条通知等；</p>
+</li>
+<li><p><strong>权限可控</strong>：Android 13+（API 33+）需动态申请<code>POST_NOTIFICATIONS</code>权限，用户可在系统设置中关闭应用通知权限。</p>
+</li>
+</ul>
+<h3 id="1-2-常见分类（按功能与形态）"><a href="#1-2-常见分类（按功能与形态）" class="headerlink" title="1.2 常见分类（按功能与形态）"></a>1.2 常见分类（按功能与形态）</h3><table>
+<thead>
+<tr>
+<th>类型</th>
+<th>核心用途</th>
+<th>特点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>普通文本通知</td>
+<td>简单信息提醒（如 “收到一条消息”）</td>
+<td>仅含标题、内容、小图标，结构简单</td>
+<td>短信通知、系统提示、简单状态更新</td>
+</tr>
+<tr>
+<td>折叠式通知</td>
+<td>展示长文本 &#x2F; 大图（如新闻摘要、商品图片）</td>
+<td>默认折叠显示，下拉展开后显示完整内容（需自定义 RemoteViews）</td>
+<td>新闻推送、商品推荐、长内容通知</td>
+</tr>
+<tr>
+<td>进度条通知</td>
+<td>展示任务进度（如文件下载、数据同步）</td>
+<td>含水平 &#x2F; 圆形进度条，支持实时更新进度值</td>
+<td>下载管理、备份进度、视频转码</td>
+</tr>
+<tr>
+<td>悬浮式通知</td>
+<td>前台重要提醒（如来电、视频通话）</td>
+<td>直接显示在屏幕顶部，无需下拉通知栏即可操作（需开启前台优先级）</td>
+<td>来电提醒、视频通话邀请、即时消息</td>
+</tr>
+<tr>
+<td>媒体控制通知</td>
+<td>控制后台媒体播放（如音乐、视频）</td>
+<td>含播放 &#x2F; 暂停、上一曲 &#x2F; 下一曲按钮，支持媒体信息展示</td>
+<td>音乐播放器、视频播放器</td>
+</tr>
+</tbody></table>
+<h2 id="二、基础使用：创建普通文本通知（Android-8-0-适配）"><a href="#二、基础使用：创建普通文本通知（Android-8-0-适配）" class="headerlink" title="二、基础使用：创建普通文本通知（Android 8.0 + 适配）"></a>二、基础使用：创建普通文本通知（Android 8.0 + 适配）</h2><p>Android 8.0（API 26）引入 “通知渠道（Notification Channel）” 机制，所有通知必须归属到某个渠道，否则无法显示。以下是创建普通文本通知的完整步骤：</p>
+<h3 id="2-1-步骤-1：添加依赖（若需使用-Material-组件）"><a href="#2-1-步骤-1：添加依赖（若需使用-Material-组件）" class="headerlink" title="2.1 步骤 1：添加依赖（若需使用 Material 组件）"></a>2.1 步骤 1：添加依赖（若需使用 Material 组件）</h3><p>若需使用通知的高级功能（如媒体控制按钮），需在<code>app/build.gradle</code>中添加 Material 依赖（可选，基础通知无需）：</p>
+<div class="code-container" data-rel="Gradle"><figure class="iseeu highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">dependencies</span> &#123;</span><br><span class="line">  <span class="comment">// Material组件库（用于通知的Material风格按钮、图标）</span></span><br><span class="line">  implementation <span class="string">&#x27;com.google.android.material:material:1.11.0&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-2-步骤-2：创建通知渠道（Android-8-0-必需）"><a href="#2-2-步骤-2：创建通知渠道（Android-8-0-必需）" class="headerlink" title="2.2 步骤 2：创建通知渠道（Android 8.0 + 必需）"></a>2.2 步骤 2：创建通知渠道（Android 8.0 + 必需）</h3><p>在<code>Application</code>或首次启动的 Activity 中创建通知渠道，指定渠道 ID、名称、重要性（决定通知的显示优先级）：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NotificationDemoActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. 定义通知渠道常量（需保证唯一，建议用包名+渠道功能命名）</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">CHANNEL_ID_NORMAL</span> <span class="operator">=</span> <span class="string">&quot;com.example.notification.normal&quot;</span>; <span class="comment">// 普通通知渠道</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">CHANNEL_NAME_NORMAL</span> <span class="operator">=</span> <span class="string">&quot;普通通知&quot;</span>; <span class="comment">// 渠道名称（显示在系统设置中）</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">CHANNEL_DESCRIPTION_NORMAL</span> <span class="operator">=</span> <span class="string">&quot;接收应用的普通消息通知&quot;</span>; <span class="comment">// 渠道描述</span></span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">      <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">      setContentView(R.layout.activity_notification_demo);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 2. Android 8.0+创建通知渠道</span></span><br><span class="line">      <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">          createNotificationChannel();</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 创建通知渠道的核心方法</span></span><br><span class="line">  <span class="meta">@RequiresApi(api = Build.VERSION_CODES.O)</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">createNotificationChannel</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// ① 创建普通通知渠道（重要性：DEFAULT，默认优先级，有声音、无震动）</span></span><br><span class="line">      <span class="type">NotificationChannel</span> <span class="variable">normalChannel</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NotificationChannel</span>(</span><br><span class="line">              CHANNEL_ID_NORMAL,</span><br><span class="line">              CHANNEL_NAME_NORMAL,</span><br><span class="line">              NotificationManager.IMPORTANCE_DEFAULT <span class="comment">// 重要性：默认（显示在状态栏，有提示音）</span></span><br><span class="line">      );</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 设置渠道描述（显示在系统“应用通知”设置中）</span></span><br><span class="line">      normalChannel.setDescription(CHANNEL_DESCRIPTION_NORMAL);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 设置通知灯（可选：是否在状态栏显示灯效）</span></span><br><span class="line">      normalChannel.enableLights(<span class="literal">true</span>);</span><br><span class="line">      normalChannel.setLightColor(getResources().getColor(R.color.colorPrimary));</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 设置震动（可选：是否震动，需申请VIBRATE权限）</span></span><br><span class="line">      normalChannel.enableVibration(<span class="literal">true</span>);</span><br><span class="line">      normalChannel.setVibrationPattern(<span class="keyword">new</span> <span class="title class_">long</span>[]&#123;<span class="number">0</span>, <span class="number">500</span>, <span class="number">200</span>, <span class="number">500</span>&#125;); <span class="comment">// 震动模式：0ms延迟→震动500ms→暂停200ms→震动500ms</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// ② 获取NotificationManager，注册渠道</span></span><br><span class="line">      <span class="type">NotificationManager</span> <span class="variable">notificationManager</span> <span class="operator">=</span> getSystemService(NotificationManager.class);</span><br><span class="line">      notificationManager.createNotificationChannel(normalChannel);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>关键说明</strong>：</p>
+<ul>
+<li><p>通知渠道重要性（<code>IMPORTANCE</code>）决定通知的显示优先级，共 5 级：</p>
+<ul>
+<li><p><code>IMPORTANCE_NONE</code>（0）：无通知，不显示；</p>
+</li>
+<li><p><code>IMPORTANCE_MIN</code>（1）：仅显示在下拉通知栏，无声音 &#x2F; 震动；</p>
+</li>
+<li><p><code>IMPORTANCE_LOW</code>（2）：显示在状态栏，无声音，下拉可看到；</p>
+</li>
+<li><p><code>IMPORTANCE_DEFAULT</code>（3）：默认级别，显示在状态栏，有声音，无悬浮；</p>
+</li>
+<li><p><code>IMPORTANCE_HIGH</code>（4）：显示在状态栏，有声音 + 悬浮（Android 12 + 需额外设置<code>setForegroundServiceBehavior</code>）。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-3-步骤-3：动态申请通知权限（Android-13-必需）"><a href="#2-3-步骤-3：动态申请通知权限（Android-13-必需）" class="headerlink" title="2.3 步骤 3：动态申请通知权限（Android 13 + 必需）"></a>2.3 步骤 3：动态申请通知权限（Android 13 + 必需）</h3><p>Android 13（API 33）及以上，需动态申请<code>POST_NOTIFICATIONS</code>权限，否则无法发送通知。步骤如下：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NotificationDemoActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通知权限请求码（自定义，需唯一）</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">REQUEST_NOTIFICATION_PERMISSION</span> <span class="operator">=</span> <span class="number">1001</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">      <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">      setContentView(R.layout.activity_notification_demo);</span><br><span class="line"></span><br><span class="line">      <span class="type">Button</span> <span class="variable">btnShowNormalNotify</span> <span class="operator">=</span> findViewById(R.id.btn_show_normal_notify);</span><br><span class="line">      btnShowNormalNotify.setOnClickListener(<span class="keyword">new</span> <span class="title class_">View</span>.OnClickListener() &#123;</span><br><span class="line">          <span class="meta">@Override</span></span><br><span class="line">          <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onClick</span><span class="params">(View v)</span> &#123;</span><br><span class="line">              <span class="comment">// 检查权限：Android 13+需动态申请</span></span><br><span class="line">              <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.TIRAMISU) &#123;</span><br><span class="line">                  <span class="keyword">if</span> (ActivityCompat.checkSelfPermission(NotificationDemoActivity.<span class="built_in">this</span>,</span><br><span class="line">                          Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">                      <span class="comment">// 未授权，发起权限请求</span></span><br><span class="line">                      ActivityCompat.requestPermissions(</span><br><span class="line">                              NotificationDemoActivity.<span class="built_in">this</span>,</span><br><span class="line">                              <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;Manifest.permission.POST_NOTIFICATIONS&#125;,</span><br><span class="line">                              REQUEST_NOTIFICATION_PERMISSION</span><br><span class="line">                      );</span><br><span class="line">                      <span class="keyword">return</span>;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125;</span><br><span class="line"></span><br><span class="line">              <span class="comment">// 已授权，显示普通通知</span></span><br><span class="line">              showNormalNotification();</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;);</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理权限请求结果</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onRequestPermissionsResult</span><span class="params">(<span class="type">int</span> requestCode, <span class="meta">@NonNull</span> String[] permissions, <span class="meta">@NonNull</span> <span class="type">int</span>[] grantResults)</span> &#123;</span><br><span class="line">      <span class="built_in">super</span>.onRequestPermissionsResult(requestCode, permissions, grantResults);</span><br><span class="line">      <span class="keyword">if</span> (requestCode == REQUEST_NOTIFICATION_PERMISSION) &#123;</span><br><span class="line">          <span class="keyword">if</span> (grantResults.length &gt; <span class="number">0</span> &amp;&amp; grantResults[<span class="number">0</span>] == PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">              <span class="comment">// 用户同意，显示通知</span></span><br><span class="line">              showNormalNotification();</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="comment">// 用户拒绝，提示无法显示通知（可选：引导用户到设置中开启）</span></span><br><span class="line">              <span class="comment">// 可调用openNotificationSettings()跳转到应用通知设置页</span></span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 跳转到应用通知设置页（用户拒绝权限后引导）</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">openNotificationSettings</span><span class="params">()</span> &#123;</span><br><span class="line">      <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">      <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">          intent.setAction(<span class="string">&quot;android.settings.APP_NOTIFICATION_SETTINGS&quot;</span>);</span><br><span class="line">          intent.putExtra(<span class="string">&quot;android.provider.extra.APP_PACKAGE&quot;</span>, getPackageName());</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.LOLLIPOP) &#123;</span><br><span class="line">          intent.setAction(<span class="string">&quot;android.settings.APP_NOTIFICATION_SETTINGS&quot;</span>);</span><br><span class="line">          intent.putExtra(<span class="string">&quot;app_package&quot;</span>, getPackageName());</span><br><span class="line">          intent.putExtra(<span class="string">&quot;app_uid&quot;</span>, getApplicationInfo().uid);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          intent.setAction(Intent.ACTION_VIEW);</span><br><span class="line">          intent.setData(Uri.parse(<span class="string">&quot;package:&quot;</span> + getPackageName()));</span><br><span class="line">      &#125;</span><br><span class="line">      startActivity(intent);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-4-步骤-4：创建并发送普通文本通知"><a href="#2-4-步骤-4：创建并发送普通文本通知" class="headerlink" title="2.4 步骤 4：创建并发送普通文本通知"></a>2.4 步骤 4：创建并发送普通文本通知</h3><p>通过<code>NotificationCompat.Builder</code>（兼容低版本）构建通知，设置标题、内容、图标、点击事件等，最终通过<code>NotificationManager</code>发送：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NotificationDemoActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 通知ID（需唯一，用于更新/取消通知）</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">int</span> <span class="variable">NOTIFICATION_ID_NORMAL</span> <span class="operator">=</span> <span class="number">100</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 显示普通文本通知</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">showNormalNotification</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 1. 创建点击通知后的跳转意图（PendingIntent：延迟执行的Intent）</span></span><br><span class="line">      <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(<span class="built_in">this</span>, NotificationDetailActivity.class);</span><br><span class="line">      intent.putExtra(<span class="string">&quot;notify_type&quot;</span>, <span class="string">&quot;normal&quot;</span>); <span class="comment">// 传递参数（可选）</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// PendingIntent.FLAG_UPDATE_CURRENT：若Intent已存在，更新其extra数据</span></span><br><span class="line">      <span class="type">PendingIntent</span> <span class="variable">pendingIntent</span> <span class="operator">=</span> PendingIntent.getActivity(</span><br><span class="line">              <span class="built_in">this</span>,</span><br><span class="line">              <span class="number">0</span>, <span class="comment">// 请求码（区分不同PendingIntent，0即可）</span></span><br><span class="line">              intent,</span><br><span class="line">              Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M ?</span><br><span class="line">                      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE :</span><br><span class="line">                      PendingIntent.FLAG_UPDATE_CURRENT</span><br><span class="line">      );</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 2. 构建通知（使用NotificationCompat兼容低版本）</span></span><br><span class="line">      NotificationCompat.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.Builder(<span class="built_in">this</span>, CHANNEL_ID_NORMAL)</span><br><span class="line">              .setSmallIcon(R.mipmap.ic_notify_small) <span class="comment">// 必需：状态栏小图标（建议用透明背景的单色图标）</span></span><br><span class="line">              .setContentTitle(<span class="string">&quot;普通通知标题&quot;</span>) <span class="comment">// 通知标题</span></span><br><span class="line">              .setContentText(<span class="string">&quot;这是一条普通通知的内容，点击可查看详情&quot;</span>) <span class="comment">// 通知内容</span></span><br><span class="line">              .setSubText(<span class="string">&quot;副标题（可选）&quot;</span>) <span class="comment">// 小标题（显示在内容下方，浅色字体）</span></span><br><span class="line">              .setAutoCancel(<span class="literal">true</span>) <span class="comment">// 点击通知后自动取消</span></span><br><span class="line">              .setContentIntent(pendingIntent) <span class="comment">// 绑定点击意图</span></span><br><span class="line">              .setWhen(System.currentTimeMillis()) <span class="comment">// 通知时间（默认当前时间，可自定义）</span></span><br><span class="line">              .setPriority(NotificationCompat.PRIORITY_DEFAULT); <span class="comment">// 优先级（兼容Android 7.1及以下）</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 3. 获取NotificationManager，发送通知</span></span><br><span class="line">      <span class="type">NotificationManager</span> <span class="variable">notificationManager</span> <span class="operator">=</span> getSystemService(NotificationManager.class);</span><br><span class="line">      <span class="type">Notification</span> <span class="variable">notification</span> <span class="operator">=</span> builder.build();</span><br><span class="line">      notificationManager.notify(NOTIFICATION_ID_NORMAL, notification);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>关键注意</strong>：</p>
+<ul>
+<li><p><code>setSmallIcon</code>是必需属性，且图标建议使用<strong>透明背景的单色图标</strong>（如白色），否则在深色状态栏中可能显示异常；</p>
+</li>
+<li><p><code>PendingIntent.FLAG_IMMUTABLE</code>（Android 12 + 必需）：标记 Intent 不可变，避免安全风险，低版本可省略；</p>
+</li>
+<li><p>若需更新通知，只需使用相同的<code>NOTIFICATION_ID</code>再次调用<code>notify()</code>即可覆盖原有通知。</p>
+</li>
+</ul>
+<h2 id="三、进阶功能：实现复杂形态的通知"><a href="#三、进阶功能：实现复杂形态的通知" class="headerlink" title="三、进阶功能：实现复杂形态的通知"></a>三、进阶功能：实现复杂形态的通知</h2><h3 id="3-1-折叠式通知（显示长文本-大图）"><a href="#3-1-折叠式通知（显示长文本-大图）" class="headerlink" title="3.1 折叠式通知（显示长文本 &#x2F; 大图）"></a>3.1 折叠式通知（显示长文本 &#x2F; 大图）</h3><p>折叠式通知默认显示简洁内容，下拉后展开显示完整信息（如长文本、大图），需通过<code>setStyle()</code>设置<code>BigTextStyle</code>（长文本）或<code>BigPictureStyle</code>（大图）：</p>
+<h4 id="示例-1：长文本折叠通知"><a href="#示例-1：长文本折叠通知" class="headerlink" title="示例 1：长文本折叠通知"></a>示例 1：长文本折叠通知</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">showBigTextNotification</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 长文本内容（超过1行，默认折叠，下拉展开）</span></span><br><span class="line">  <span class="type">String</span> <span class="variable">longText</span> <span class="operator">=</span> <span class="string">&quot;这是一条包含长文本的通知，默认情况下会折叠显示，&quot;</span> +</span><br><span class="line">          <span class="string">&quot;用户下拉通知栏后可看到完整内容。适合用于展示新闻摘要、&quot;</span> +</span><br><span class="line">          <span class="string">&quot;公告详情等需要完整阅读的信息，支持换行和标点符号。&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 构建通知</span></span><br><span class="line">  NotificationCompat.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.Builder(<span class="built_in">this</span>, CHANNEL_ID_NORMAL)</span><br><span class="line">          .setSmallIcon(R.mipmap.ic_notify_small)</span><br><span class="line">          .setContentTitle(<span class="string">&quot;长文本折叠通知&quot;</span>)</span><br><span class="line">          .setContentText(<span class="string">&quot;点击展开查看完整内容&quot;</span>) <span class="comment">// 默认折叠时显示的简短内容</span></span><br><span class="line">          .setAutoCancel(<span class="literal">true</span>)</span><br><span class="line">          .setStyle(<span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.BigTextStyle()</span><br><span class="line">                  .bigText(longText) <span class="comment">// 展开后的长文本</span></span><br><span class="line">                  .setBigContentTitle(<span class="string">&quot;长文本通知完整标题&quot;</span>) <span class="comment">// 展开后的标题（可选，默认用setContentTitle）</span></span><br><span class="line">                  .setSummaryText(<span class="string">&quot;来自系统通知&quot;</span>)) <span class="comment">// 展开后的摘要（显示在底部，可选）</span></span><br><span class="line">          .setPriority(NotificationCompat.PRIORITY_DEFAULT);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送通知</span></span><br><span class="line">  <span class="type">NotificationManager</span> <span class="variable">notificationManager</span> <span class="operator">=</span> getSystemService(NotificationManager.class);</span><br><span class="line">  notificationManager.notify(<span class="number">101</span>, builder.build()); <span class="comment">// 通知ID=101（与普通通知区分）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="示例-2：大图折叠通知"><a href="#示例-2：大图折叠通知" class="headerlink" title="示例 2：大图折叠通知"></a>示例 2：大图折叠通知</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">showBigPictureNotification</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 大图资源（可从本地drawable或网络加载，此处用本地资源示例）</span></span><br><span class="line">  <span class="type">Bitmap</span> <span class="variable">bigPicture</span> <span class="operator">=</span> BitmapFactory.decodeResource(getResources(), R.drawable.img_notify_big);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 构建通知</span></span><br><span class="line">  NotificationCompat.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.Builder(<span class="built_in">this</span>, CHANNEL_ID_NORMAL)</span><br><span class="line">          .setSmallIcon(R.mipmap.ic_notify_small)</span><br><span class="line">          .setContentTitle(<span class="string">&quot;大图折叠通知&quot;</span>)</span><br><span class="line">          .setContentText(<span class="string">&quot;点击展开查看大图&quot;</span>) <span class="comment">// 默认折叠时的简短内容</span></span><br><span class="line">          .setAutoCancel(<span class="literal">true</span>)</span><br><span class="line">          .setStyle(<span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.BigPictureStyle()</span><br><span class="line">                  .bigPicture(bigPicture) <span class="comment">// 展开后的大图</span></span><br><span class="line">                  .bigLargeIcon(<span class="literal">null</span>) <span class="comment">// 大图模式下，隐藏左侧大图标（可选）</span></span><br><span class="line">                  .setBigContentTitle(<span class="string">&quot;大图通知完整标题&quot;</span>)</span><br><span class="line">                  .setSummaryText(<span class="string">&quot;风景图片&quot;</span>)) <span class="comment">// 摘要文本</span></span><br><span class="line">          .setPriority(NotificationCompat.PRIORITY_DEFAULT);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送通知</span></span><br><span class="line">  <span class="type">NotificationManager</span> <span class="variable">notificationManager</span> <span class="operator">=</span> getSystemService(NotificationManager.class);</span><br><span class="line">  notificationManager.notify(<span class="number">102</span>, builder.build()); <span class="comment">// 通知ID=102</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="3-2-进度条通知（展示任务进度）"><a href="#3-2-进度条通知（展示任务进度）" class="headerlink" title="3.2 进度条通知（展示任务进度）"></a>3.2 进度条通知（展示任务进度）</h3><p>进度条通知用于展示耗时任务的进度（如文件下载、数据同步），支持<strong>确定性进度</strong>（已知总进度，如下载 100MB 文件）和<strong>不确定性进度</strong>（未知总进度，如加载中）：</p>
+<h4 id="示例：文件下载进度通知"><a href="#示例：文件下载进度通知" class="headerlink" title="示例：文件下载进度通知"></a>示例：文件下载进度通知</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> NotificationManager notificationManager;</span><br><span class="line"><span class="keyword">private</span> NotificationCompat.Builder progressBuilder;</span><br><span class="line"><span class="keyword">private</span> <span class="type">int</span> <span class="variable">downloadProgress</span> <span class="operator">=</span> <span class="number">0</span>; <span class="comment">// 当前下载进度（0\~100）</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 初始化进度通知</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">initDownloadNotification</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. 创建进度通知Builder</span></span><br><span class="line">  progressBuilder = <span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.Builder(<span class="built_in">this</span>, CHANNEL_ID_NORMAL)</span><br><span class="line">          .setSmallIcon(R.mipmap.ic_notify_small)</span><br><span class="line">          .setContentTitle(<span class="string">&quot;文件下载中&quot;</span>)</span><br><span class="line">          .setContentText(<span class="string">&quot;0%&quot;</span>) <span class="comment">// 初始进度文本</span></span><br><span class="line">          .setAutoCancel(<span class="literal">false</span>) <span class="comment">// 下载完成前不允许手动取消</span></span><br><span class="line">          .setOngoing(<span class="literal">true</span>) <span class="comment">// 标记为“正在进行”，禁止滑动删除</span></span><br><span class="line">          .setPriority(NotificationCompat.PRIORITY_DEFAULT);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 获取NotificationManager</span></span><br><span class="line">  notificationManager = getSystemService(NotificationManager.class);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 模拟下载进度更新（实际项目中应在后台线程中调用）</span></span><br><span class="line">  <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line"></span><br><span class="line">      <span class="meta">@Override</span></span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">          <span class="keyword">while</span> (downloadProgress &lt;= <span class="number">100</span>) &#123;</span><br><span class="line">              <span class="keyword">try</span> &#123;</span><br><span class="line">                  Thread.sleep(<span class="number">500</span>); <span class="comment">// 模拟下载耗时（每500ms更新一次进度）</span></span><br><span class="line">                  downloadProgress += <span class="number">10</span>; <span class="comment">// 每次增加10%进度</span></span><br><span class="line">                  <span class="comment">// 更新进度条</span></span><br><span class="line">                  updateDownloadProgress(downloadProgress);</span><br><span class="line">                  <span class="comment">// 下载完成后，修改通知内容并允许取消</span></span><br><span class="line">                  <span class="keyword">if</span> (downloadProgress &gt;= <span class="number">100</span>) &#123;</span><br><span class="line">                      progressBuilder.setContentTitle(<span class="string">&quot;文件下载完成&quot;</span>)</span><br><span class="line">                              .setContentText(<span class="string">&quot;点击查看文件&quot;</span>)</span><br><span class="line">                              .setAutoCancel(<span class="literal">true</span>)</span><br><span class="line">                              .setOngoing(<span class="literal">false</span>)</span><br><span class="line">                              .setProgress(<span class="number">0</span>, <span class="number">0</span>, <span class="literal">false</span>); <span class="comment">// 清除进度条</span></span><br><span class="line">                      notificationManager.notify(<span class="number">103</span>, progressBuilder.build());</span><br><span class="line">                      <span class="keyword">break</span>;</span><br><span class="line">                  &#125;</span><br><span class="line">              &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                  e.printStackTrace();</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;).start();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新下载进度的方法</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">updateDownloadProgress</span><span class="params">(<span class="type">int</span> progress)</span> &#123;</span><br><span class="line">  <span class="comment">// setProgress(总进度, 当前进度, 是否不确定进度)</span></span><br><span class="line">  progressBuilder.setProgress(<span class="number">100</span>, progress, <span class="literal">false</span>)</span><br><span class="line">          .setContentText(progress + <span class="string">&quot;%&quot;</span>);</span><br><span class="line">  notificationManager.notify(<span class="number">103</span>, progressBuilder.build()); <span class="comment">// 通知ID=103</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>关键说明</strong>：</p>
+<ul>
+<li><p><code>setOngoing(true)</code>：标记通知为 “正在进行”，用户无法滑动删除，适合耗时任务（如下载）；</p>
+</li>
+<li><p>不确定性进度（如加载中）：将<code>setProgress</code>的第三个参数设为<code>true</code>，进度条会变成循环动画（无具体进度值）。</p>
+</li>
+</ul>
+<h3 id="3-3-悬浮式通知（Android-5-0-）"><a href="#3-3-悬浮式通知（Android-5-0-）" class="headerlink" title="3.3 悬浮式通知（Android 5.0+）"></a>3.3 悬浮式通知（Android 5.0+）</h3><p>悬浮式通知（Heads-Up Notification）直接显示在屏幕顶部，无需下拉通知栏即可操作，适合重要提醒（如来电、视频通话）。需满足两个条件：</p>
+<ol>
+<li><p>通知渠道重要性设为<code>IMPORTANCE_HIGH</code>（Android 8.0+）或优先级设为<code>PRIORITY_HIGH</code>（Android 7.1 及以下）；</p>
+</li>
+<li><p>应用处于前台或后台（非关闭状态）。</p>
+</li>
+</ol>
+<h4 id="示例：悬浮式来电通知"><a href="#示例：悬浮式来电通知" class="headerlink" title="示例：悬浮式来电通知"></a>示例：悬浮式来电通知</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">showHeadsUpNotification</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 1. 创建“接听”和“挂断”按钮的意图（PendingIntent）</span></span><br><span class="line">  <span class="comment">// 接听按钮意图</span></span><br><span class="line">  <span class="type">Intent</span> <span class="variable">answerIntent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(<span class="built_in">this</span>, CallService.class);</span><br><span class="line">  answerIntent.setAction(<span class="string">&quot;ANSWER_CALL&quot;</span>);</span><br><span class="line">  <span class="type">PendingIntent</span> <span class="variable">answerPendingIntent</span> <span class="operator">=</span> PendingIntent.getService(</span><br><span class="line">          <span class="built_in">this</span>,</span><br><span class="line">          <span class="number">1</span>,</span><br><span class="line">          answerIntent,</span><br><span class="line">          Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M ?</span><br><span class="line">                  PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE :</span><br><span class="line">                  PendingIntent.FLAG_UPDATE_CURRENT</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 挂断按钮意图</span></span><br><span class="line">  <span class="type">Intent</span> <span class="variable">hangupIntent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(<span class="built_in">this</span>, CallService.class);</span><br><span class="line">  hangupIntent.setAction(<span class="string">&quot;HANGUP_CALL&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="type">PendingIntent</span> <span class="variable">hangupPendingIntent</span> <span class="operator">=</span> PendingIntent.getService(</span><br><span class="line">          <span class="built_in">this</span>,</span><br><span class="line">          <span class="number">2</span>,</span><br><span class="line">          hangupIntent,</span><br><span class="line">          Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.M ?</span><br><span class="line">                  PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE :</span><br><span class="line">                  PendingIntent.FLAG_UPDATE_CURRENT</span><br><span class="line">  );</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 构建悬浮式通知（添加操作按钮）</span></span><br><span class="line">  NotificationCompat.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NotificationCompat</span>.Builder(<span class="built_in">this</span>, CHANNEL_ID_NORMAL)</span><br><span class="line">          .setSmallIcon(R.mipmap.ic_notify_call)</span><br><span class="line">          .setContentTitle(<span class="string">&quot;来电提醒&quot;</span>)</span><br><span class="line">          .setContentText(<span class="string">&quot;张三正在呼叫你...&quot;</span>)</span><br><span class="line">          .setAutoCancel(<span class="literal">true</span>)</span><br><span class="line">          .setPriority(NotificationCompat.PRIORITY_HIGH) <span class="comment">// 高优先级（触发悬浮）</span></span><br><span class="line">          .setFullScreenIntent(answerPendingIntent, <span class="literal">true</span>) <span class="comment">// 全屏意图（可选，来电时跳转到通话界面）</span></span><br><span class="line"></span><br><span class="line">          <span class="comment">// 添加操作按钮（最多3个）</span></span><br><span class="line">          .addAction(R.mipmap.ic_answer, <span class="string">&quot;接听&quot;</span>, answerPendingIntent)</span><br><span class="line">          .addAction(R.mipmap.ic_hangup, <span class="string">&quot;挂断&quot;</span>, hangupPendingIntent);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 发送通知</span></span><br><span class="line">  <span class="type">NotificationManager</span> <span class="variable">notificationManager</span> <span class="operator">=</span> getSystemService(NotificationManager.class);</span><br><span class="line">  notificationManager.notify(<span class="number">104</span>, builder.build()); <span class="comment">// 通知ID=104</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p><strong>关键注意</strong>：</p>
+<ul>
+<li><p>Android 12+（API 31）中，<code>IMPORTANCE_HIGH</code>的通知默认仅在应用前台时显示悬浮，后台需额外设置<code>setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)</code>（需前台服务）；</p>
+</li>
+<li><p><code>addAction</code>最多添加 3 个操作按钮，图标建议使用单色小图标，避免显示异常。</p>
+</li>
+</ul>
+<h2 id="四、避坑指南：Notification-常见问题与解决方案"><a href="#四、避坑指南：Notification-常见问题与解决方案" class="headerlink" title="四、避坑指南：Notification 常见问题与解决方案"></a>四、避坑指南：Notification 常见问题与解决方案</h2><h3 id="问题-1：通知不显示（Android-8-0-）"><a href="#问题-1：通知不显示（Android-8-0-）" class="headerlink" title="问题 1：通知不显示（Android 8.0+）"></a>问题 1：通知不显示（Android 8.0+）</h3><ul>
+<li><p><strong>原因 1</strong>：未创建通知渠道，或渠道 ID 与 Builder 中设置的渠道 ID 不一致；</p>
+</li>
+<li><p><strong>解决</strong>：确保<code>createNotificationChannel()</code>已调用，且<code>Builder</code>的第二个参数（渠道 ID）与创建的渠道 ID 完全一致（如<code>CHANNEL_ID_NORMAL</code>）。</p>
+</li>
+<li><p><strong>原因 2</strong>：通知权限未授权（Android 13+）或用户在系统设置中关闭了通知；</p>
+</li>
+<li><p><strong>解决</strong>：通过<code>checkSelfPermission</code>检查权限，未授权时发起请求；用户关闭时，引导调用<code>openNotificationSettings()</code>跳转到设置页开启。</p>
+</li>
+<li><p><strong>原因 3</strong>：<code>setSmallIcon</code>未设置或图标格式错误（如非透明背景的彩色图标）；</p>
+</li>
+<li><p><strong>解决</strong>：必须设置<code>setSmallIcon</code>，且使用透明背景的单色图标（如白色），可放在<code>mipmap-xxxhdpi</code>目录下。</p>
+</li>
+</ul>
+<h3 id="问题-2：PendingIntent-跳转无响应或参数传递失败"><a href="#问题-2：PendingIntent-跳转无响应或参数传递失败" class="headerlink" title="问题 2：PendingIntent 跳转无响应或参数传递失败"></a>问题 2：PendingIntent 跳转无响应或参数传递失败</h3><ul>
+<li><p><strong>原因 1</strong>：<code>PendingIntent</code>的<code>requestCode</code>重复，导致 Intent 被覆盖；</p>
+</li>
+<li><p><strong>解决</strong>：不同<code>PendingIntent</code>使用不同的<code>requestCode</code>（如接听按钮用 1，挂断按钮用 2）。</p>
+</li>
+<li><p><strong>原因 2</strong>：<code>PendingIntent</code>未设置<code>FLAG_UPDATE_CURRENT</code>，导致 extra 数据未更新；</p>
+</li>
+<li><p><strong>解决</strong>：创建<code>PendingIntent</code>时添加<code>PendingIntent.FLAG_UPDATE_CURRENT</code>，确保参数实时更新。</p>
+</li>
+<li><p><strong>原因 3</strong>：Android 12 + 未添加<code>FLAG_IMMUTABLE</code>，导致<code>PendingIntent</code>创建失败；</p>
+</li>
+<li><p><strong>解决</strong>：按版本分支添加<code>FLAG_IMMUTABLE</code>（参考 2.4 节代码）。</p>
+</li>
+</ul>
+<h3 id="问题-3：通知图标显示异常（如显示默认图标而非自定义图标）"><a href="#问题-3：通知图标显示异常（如显示默认图标而非自定义图标）" class="headerlink" title="问题 3：通知图标显示异常（如显示默认图标而非自定义图标）"></a>问题 3：通知图标显示异常（如显示默认图标而非自定义图标）</h3><ul>
+<li><p><strong>原因</strong>：<code>setSmallIcon</code>使用了彩色图标或非透明背景图标，在深色状态栏中被系统替换为默认图标；</p>
+</li>
+<li><p><strong>解决</strong>：使用透明背景的单色图标（如白色），可通过 Android Studio 的 “Image Asset” 工具生成符合规范的通知图标（路径：File→New→Image Asset→Icon Type 选择 Notification Icons）。</p>
+</li>
+</ul>
+<h3 id="问题-4：悬浮通知不显示（Android-5-0-）"><a href="#问题-4：悬浮通知不显示（Android-5-0-）" class="headerlink" title="问题 4：悬浮通知不显示（Android 5.0+）"></a>问题 4：悬浮通知不显示（Android 5.0+）</h3><ul>
+<li><p><strong>原因 1</strong>：通知优先级 &#x2F; 重要性不足（如<code>IMPORTANCE_DEFAULT</code>或<code>PRIORITY_DEFAULT</code>）；</p>
+</li>
+<li><p><strong>解决</strong>：Android 8.0 + 将渠道重要性设为<code>IMPORTANCE_HIGH</code>，Android 7.1 及以下将<code>Builder</code>的优先级设为<code>PRIORITY_HIGH</code>。</p>
+</li>
+<li><p><strong>原因 2</strong>：Android 12 + 应用后台时，未使用前台服务或未设置<code>setForegroundServiceBehavior</code>；</p>
+</li>
+<li><p><strong>解决</strong>：后台悬浮需启动前台服务，并在通知中设置：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.S) &#123;</span><br><span class="line">  builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="问题-5：进度条通知更新后进度不刷新"><a href="#问题-5：进度条通知更新后进度不刷新" class="headerlink" title="问题 5：进度条通知更新后进度不刷新"></a>问题 5：进度条通知更新后进度不刷新</h3><ul>
+<li><p><strong>原因</strong>：每次更新进度时未重新调用<code>notificationManager.notify()</code>，或使用了不同的通知 ID；</p>
+</li>
+<li><p><strong>解决</strong>：每次更新进度后，使用<strong>相同的通知 ID</strong>（如 103）调用<code>notify()</code>，确保覆盖原有通知。</p>
+</li>
+</ul>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> Android Notification</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-29 21:12:05</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 22:37:46
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/29/AndroidNotes-Android-Notification/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/29/AndroidNotes-Android-ScrollView/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Android ScrollView</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/29/AndroidNotes-RelativeLayout/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">RelativeLayout</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">Android Notification</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E8%AE%A4%E7%9F%A5%EF%BC%9ANotification-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7%E4%B8%8E%E5%88%86%E7%B1%BB"><span class="nav-number">1.</span> <span class="nav-text">一、基础认知：Notification 的核心特性与分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E5%B8%B8%E8%A7%81%E5%88%86%E7%B1%BB%EF%BC%88%E6%8C%89%E5%8A%9F%E8%83%BD%E4%B8%8E%E5%BD%A2%E6%80%81%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 常见分类（按功能与形态）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%EF%BC%9A%E5%88%9B%E5%BB%BA%E6%99%AE%E9%80%9A%E6%96%87%E6%9C%AC%E9%80%9A%E7%9F%A5%EF%BC%88Android-8-0-%E9%80%82%E9%85%8D%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">二、基础使用：创建普通文本通知（Android 8.0 + 适配）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%AD%A5%E9%AA%A4-1%EF%BC%9A%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96%EF%BC%88%E8%8B%A5%E9%9C%80%E4%BD%BF%E7%94%A8-Material-%E7%BB%84%E4%BB%B6%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 步骤 1：添加依赖（若需使用 Material 组件）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%AD%A5%E9%AA%A4-2%EF%BC%9A%E5%88%9B%E5%BB%BA%E9%80%9A%E7%9F%A5%E6%B8%A0%E9%81%93%EF%BC%88Android-8-0-%E5%BF%85%E9%9C%80%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 步骤 2：创建通知渠道（Android 8.0 + 必需）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-%E6%AD%A5%E9%AA%A4-3%EF%BC%9A%E5%8A%A8%E6%80%81%E7%94%B3%E8%AF%B7%E9%80%9A%E7%9F%A5%E6%9D%83%E9%99%90%EF%BC%88Android-13-%E5%BF%85%E9%9C%80%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 步骤 3：动态申请通知权限（Android 13 + 必需）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-%E6%AD%A5%E9%AA%A4-4%EF%BC%9A%E5%88%9B%E5%BB%BA%E5%B9%B6%E5%8F%91%E9%80%81%E6%99%AE%E9%80%9A%E6%96%87%E6%9C%AC%E9%80%9A%E7%9F%A5"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 步骤 4：创建并发送普通文本通知</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E8%BF%9B%E9%98%B6%E5%8A%9F%E8%83%BD%EF%BC%9A%E5%AE%9E%E7%8E%B0%E5%A4%8D%E6%9D%82%E5%BD%A2%E6%80%81%E7%9A%84%E9%80%9A%E7%9F%A5"><span class="nav-number">3.</span> <span class="nav-text">三、进阶功能：实现复杂形态的通知</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%8A%98%E5%8F%A0%E5%BC%8F%E9%80%9A%E7%9F%A5%EF%BC%88%E6%98%BE%E7%A4%BA%E9%95%BF%E6%96%87%E6%9C%AC-%E5%A4%A7%E5%9B%BE%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 折叠式通知（显示长文本 &#x2F; 大图）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E8%BF%9B%E5%BA%A6%E6%9D%A1%E9%80%9A%E7%9F%A5%EF%BC%88%E5%B1%95%E7%A4%BA%E4%BB%BB%E5%8A%A1%E8%BF%9B%E5%BA%A6%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 进度条通知（展示任务进度）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%82%AC%E6%B5%AE%E5%BC%8F%E9%80%9A%E7%9F%A5%EF%BC%88Android-5-0-%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 悬浮式通知（Android 5.0+）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9ANotification-%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">四、避坑指南：Notification 常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9A%E9%80%9A%E7%9F%A5%E4%B8%8D%E6%98%BE%E7%A4%BA%EF%BC%88Android-8-0-%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">问题 1：通知不显示（Android 8.0+）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9APendingIntent-%E8%B7%B3%E8%BD%AC%E6%97%A0%E5%93%8D%E5%BA%94%E6%88%96%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E5%A4%B1%E8%B4%A5"><span class="nav-number">4.2.</span> <span class="nav-text">问题 2：PendingIntent 跳转无响应或参数传递失败</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9A%E9%80%9A%E7%9F%A5%E5%9B%BE%E6%A0%87%E6%98%BE%E7%A4%BA%E5%BC%82%E5%B8%B8%EF%BC%88%E5%A6%82%E6%98%BE%E7%A4%BA%E9%BB%98%E8%AE%A4%E5%9B%BE%E6%A0%87%E8%80%8C%E9%9D%9E%E8%87%AA%E5%AE%9A%E4%B9%89%E5%9B%BE%E6%A0%87%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">问题 3：通知图标显示异常（如显示默认图标而非自定义图标）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-4%EF%BC%9A%E6%82%AC%E6%B5%AE%E9%80%9A%E7%9F%A5%E4%B8%8D%E6%98%BE%E7%A4%BA%EF%BC%88Android-5-0-%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">问题 4：悬浮通知不显示（Android 5.0+）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-5%EF%BC%9A%E8%BF%9B%E5%BA%A6%E6%9D%A1%E9%80%9A%E7%9F%A5%E6%9B%B4%E6%96%B0%E5%90%8E%E8%BF%9B%E5%BA%A6%E4%B8%8D%E5%88%B7%E6%96%B0"><span class="nav-number">4.5.</span> <span class="nav-text">问题 5：进度条通知更新后进度不刷新</span></a></li></ol></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 22 篇文章
+                    </span>
+                    
+                        <span>
+                            共 57.9k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>

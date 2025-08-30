@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/27/androidnotes-log的使用方法/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Log的使用方法">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/27/AndroidNotes-Log%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-27T14:12:23.000Z">
+<meta property="article:modified_time" content="2025-08-30T14:31:22.578Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            Log的使用方法 | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">7</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">22</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">Log的使用方法</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-27 22:12:23</span>
+        <span class="mobile">2025-08-27 22:12:23</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 22:31:22</span>
+            <span class="mobile">2025-08-30 22:31:22</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/">调试工具</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>4.9k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>19 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<p>在 Android 应用开发过程中，Log（日志）是调试程序、定位问题、跟踪数据流转的核心工具。合理使用 Log 能大幅提升开发效率，避免冗余日志干扰调试，同时保障线上应用的性能与安全性。本文将从基础用法、高级技巧、最佳实践等维度，系统讲解 Android Log 的使用方法。</p>
+<h2 id="一、Log-的基础认知：核心类与日志级别"><a href="#一、Log-的基础认知：核心类与日志级别" class="headerlink" title="一、Log 的基础认知：核心类与日志级别"></a>一、Log 的基础认知：核心类与日志级别</h2><p>Android 系统提供<code>android.util.Log</code>工具类，通过静态方法输出不同级别的日志，日志级别从低到高对应不同的调试场景，系统会根据级别控制日志的显示与过滤。</p>
+<h3 id="1-1-核心日志级别（5-级）"><a href="#1-1-核心日志级别（5-级）" class="headerlink" title="1.1 核心日志级别（5 级）"></a>1.1 核心日志级别（5 级）</h3><table>
+<thead>
+<tr>
+<th>级别</th>
+<th>对应方法</th>
+<th>日志标识</th>
+<th>核心用途</th>
+<th>输出场景示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Verbose</strong>（ verbose）</td>
+<td><code>Log.v(String tag, String msg)</code></td>
+<td>V</td>
+<td>最详细的日志，用于跟踪代码执行的每一步细节（如变量赋值、方法进入 &#x2F; 退出）</td>
+<td>调试循环内变量变化、函数参数传递</td>
+</tr>
+<tr>
+<td><strong>Debug</strong>（调试）</td>
+<td><code>Log.d(String tag, String msg)</code></td>
+<td>D</td>
+<td>调试关键节点日志，记录核心业务逻辑的执行状态（如接口请求参数、数据解析结果）</td>
+<td>接口请求前打印参数、数据库查询结果输出</td>
+</tr>
+<tr>
+<td><strong>Info</strong>（信息）</td>
+<td><code>Log.i(String tag, String msg)</code></td>
+<td>I</td>
+<td>一般性信息日志，记录应用正常运行的重要事件（如应用启动、页面跳转、服务启停）</td>
+<td>应用初始化完成、用户登录成功提示</td>
+</tr>
+<tr>
+<td><strong>Warning</strong>（警告）</td>
+<td><code>Log.w(String tag, String msg)</code></td>
+<td>W</td>
+<td>警告日志，标识潜在风险但不影响当前功能运行的场景（如参数为空、格式不匹配、版本兼容问题）</td>
+<td>非必填参数缺失、旧 API 使用提示</td>
+</tr>
+<tr>
+<td><strong>Error</strong>（错误）</td>
+<td><code>Log.e(String tag, String msg)</code></td>
+<td>E</td>
+<td>错误日志，记录导致功能异常、崩溃的关键问题（如空指针异常、接口请求失败、数据解析错误）</td>
+<td>捕获异常时打印堆栈、接口返回错误码</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>注意</strong></p>
+<p>：日志级别优先级：</p>
+<p><code>Verbose &lt; Debug &lt; Info &lt; Warning &lt; Error</code></p>
+<p>。在 Logcat 中过滤日志时，选择某一级别会显示该级别及更高优先级的所有日志（如选择 “Error” 级别，仅显示 Error 日志；选择 “Debug” 级别，显示 Debug、Info、Warning、Error 日志）。</p>
+</blockquote>
+<h3 id="1-2-Log-方法的参数说明"><a href="#1-2-Log-方法的参数说明" class="headerlink" title="1.2 Log 方法的参数说明"></a>1.2 Log 方法的参数说明</h3><p>所有 Log 方法的核心参数一致，部分方法支持扩展参数（如异常堆栈）：</p>
+<ul>
+<li><p><strong>tag（标签）</strong>：日志的标识，通常用当前类名、模块名或业务名称（如<code>MainActivity</code>、<code>UserApi</code>），用于在 Logcat 中快速过滤指定模块的日志；</p>
+</li>
+<li><p><strong>msg（消息）</strong>：日志内容，需简洁明了地描述当前场景（如 “接口请求参数：userId&#x3D;123”）；</p>
+</li>
+<li><p><strong>throwable（可选）</strong>：异常对象，仅<code>Log.w()</code>、<code>Log.e()</code>等方法支持，用于打印异常堆栈信息（定位崩溃原因的关键），示例：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> <span class="variable">result</span> <span class="operator">=</span> <span class="number">10</span> / <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">&#125; <span class="keyword">catch</span> (ArithmeticException e) &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 打印错误日志并附带异常堆栈</span></span><br><span class="line"></span><br><span class="line">  Log.e(<span class="string">&quot;MainActivity&quot;</span>, <span class="string">&quot;计算异常：除数不能为0&quot;</span>, e);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="1-3-系统日志"><a href="#1-3-系统日志" class="headerlink" title="1.3 系统日志"></a>1.3 系统日志</h3><p>在 Android 系统中，日志会根据类型分类存储到不同的设备节点中，不同日志 API 输出的日志也会对应写入特定设备节点。明确这些设备路径及写入规则，是理解日志流转、精准获取目标日志的基础，以下针对核心系统日志设备节点展开说明。</p>
+<h4 id="1-3-1-Android-系统核心日志设备节点"><a href="#1-3-1-Android-系统核心日志设备节点" class="headerlink" title="1.3.1 Android 系统核心日志设备节点"></a>1.3.1 Android 系统核心日志设备节点</h4><p>Android 系统将日志按功能场景，分别写入 <code>/dev/log/</code> 目录下的 4 个核心设备节点，各节点对应不同的日志类型，具体如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>设备节点路径</th>
+<th>日志类型</th>
+<th>核心作用</th>
+<th>日志来源与场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/dev/log/main</code></td>
+<td>应用与系统核心日志</td>
+<td>存储最常用的应用日志与系统基础日志，是日常调试的核心节点</td>
+<td>1. 应用通过 <code>Log</code> 类输出的日志（如 <code>Log.v()</code>&#x2F;<code>Log.d()</code>&#x2F;<code>Log.e()</code> 等）；2. 系统核心进程（如 <code>zygote</code>）的基础运行日志</td>
+</tr>
+<tr>
+<td><code>/dev/log/system</code></td>
+<td>系统服务日志</td>
+<td>存储系统核心服务、硬件交互相关日志，用于排查系统级问题</td>
+<td>1. 系统服务通过 <code>Slog</code> 类输出的日志（如 <code>ActivityManagerService</code>、<code>PackageManagerService</code> 的运行日志）；2. 硬件驱动与系统框架层的交互日志（如权限管理、窗口控制）</td>
+</tr>
+<tr>
+<td><code>/dev/log/radio</code></td>
+<td>无线通信日志</td>
+<td>存储手机通信模块相关日志，聚焦无线功能场景</td>
+<td>1. 蜂窝网络（2G&#x2F;3G&#x2F;4G&#x2F;5G）的连接、信号、通话日志；2. Wi-Fi、蓝牙、NFC 等无线模块的运行与交互日志；3. 调制解调器（Modem）的状态与错误日志</td>
+</tr>
+<tr>
+<td><code>/dev/log/events</code></td>
+<td>系统事件日志</td>
+<td>存储结构化系统事件（无直接文本，需解析），用于分析事件时序</td>
+<td>1. 系统级事件（如设备开机、休眠、电量变化、网络切换）；2. 用户操作事件（如按键按下、触屏交互、应用启动 &#x2F; 退出）；3. 硬件状态事件（如传感器触发、摄像头开启）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>adb logcat -b &lt;system, radio, events, main(default)&gt;</p>
+<p>main — 查看主缓冲区 (默认缓冲区)</p>
+<p>radio — 查看包含在无线&#x2F;电话相关的缓冲区消息</p>
+<p>events — 查看事件相关的消息</p>
+</blockquote>
+<h4 id="1-3-2-关键日志-API-的写入规则（核心区分）"><a href="#1-3-2-关键日志-API-的写入规则（核心区分）" class="headerlink" title="1.3.2 关键日志 API 的写入规则（核心区分）"></a>1.3.2 关键日志 API 的写入规则（核心区分）</h4><p>Android 系统提供 <code>Log</code> 和 <code>Slog</code> 两种核心日志 API，二者输出的日志会自动写入不同的设备节点，需重点区分，避免日志查找时混淆路径：</p>
+<ol>
+<li><strong><code>Log</code> 类：写入 <code>/dev/log/main</code> 节点</strong></li>
+</ol>
+<p><code>Log</code> 类是应用开发中最常用的日志 API（位于 <code>android.util.Log</code>），所有通过 <code>Log</code> 输出的日志，均默认写入 <code>/dev/log/main</code> 设备节点，示例如下：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下日志均写入 /dev/log/main 节点</span></span><br><span class="line"></span><br><span class="line">Log.v(<span class="string">&quot;MainActivity&quot;</span>, <span class="string">&quot;Verbose级别日志：跟踪详细流程&quot;</span>); <span class="comment">// Verbose级别</span></span><br><span class="line"></span><br><span class="line">Log.d(<span class="string">&quot;UserApi&quot;</span>, <span class="string">&quot;Debug级别日志：接口请求参数&quot;</span>);      <span class="comment">// Debug级别</span></span><br><span class="line"></span><br><span class="line">Log.i(<span class="string">&quot;AppInit&quot;</span>, <span class="string">&quot;Info级别日志：应用初始化完成&quot;</span>);    <span class="comment">// Info级别</span></span><br><span class="line"></span><br><span class="line">Log.w(<span class="string">&quot;DataParse&quot;</span>, <span class="string">&quot;Warning级别日志：数据格式异常&quot;</span>); <span class="comment">// Warning级别</span></span><br><span class="line"></span><br><span class="line">Log.e(<span class="string">&quot;LoginLogic&quot;</span>, <span class="string">&quot;Error级别日志：登录接口失败&quot;</span>);  <span class="comment">// Error级别</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>适用场景</strong>：应用业务逻辑调试（如接口请求、数据解析、页面交互），日常开发中 90% 以上的日志均通过 <code>Log</code> 类输出到 <code>/dev/log/main</code>。<br>2.  <strong><code>Slog</code> 类：写入 <code>/dev/log/system</code> 节点</strong></p>
+<p><code>Slog</code> 类是系统开发专用日志 API（位于 <code>com.android.server</code> 包下，普通应用无法直接调用），主要用于系统服务输出运行日志，所有通过 <code>Slog</code> 输出的日志，均写入 <code>/dev/log/system</code> 设备节点，示例如下（系统服务源码中常见）：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 以下系统服务日志写入 /dev/log/system 节点</span></span><br><span class="line">Slog.d(<span class="string">&quot;ActivityManager&quot;</span>, <span class="string">&quot;应用启动：包名com.example.myapp，PID=1234&quot;</span>); <span class="comment">// Debug级别</span></span><br><span class="line"></span><br><span class="line">Slog.e(<span class="string">&quot;PackageManager&quot;</span>, <span class="string">&quot;应用安装失败：签名验证不通过&quot;</span>);               <span class="comment">// Error级别</span></span><br><span class="line"></span><br><span class="line">Slog.i(<span class="string">&quot;WindowManager&quot;</span>, <span class="string">&quot;窗口切换：从MainActivity切换到SettingActivity&quot;</span>); <span class="comment">// Info级别</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>适用场景</strong>：系统服务问题排查（如应用启动失败、权限异常、系统服务崩溃），需通过 <code>/dev/log/system</code> 节点获取日志。</p>
+<h4 id="1-3-3-关键注意事项"><a href="#1-3-3-关键注意事项" class="headerlink" title="1.3.3 关键注意事项"></a>1.3.3 关键注意事项</h4><ol>
+<li><p><strong>设备节点的访问权限</strong>：</p>
+<p> <code>/dev/log/</code> 目录下的设备节点默认仅允许系统进程或 <code>log</code> 用户组访问，普通应用无法直接读写；通过 <code>adb logcat</code> 命令获取日志时，无需手动指定设备节点，仅需通过 <code>-b</code> 参数指定日志类型（如 <code>-b main</code> 对应 <code>/dev/log/main</code>，<code>-b system</code> 对应 <code>/dev/log/system</code>），ADB 会自动关联对应的设备节点。</p>
+</li>
+<li><p><strong>日志的临时存储特性</strong>：</p>
+<p> <code>/dev/log/</code> 下的设备节点本质是 “内存级缓存”，日志仅保存在当前开机周期内，设备重启后所有日志会被清空；若需长期保存日志，需通过 <code>adb logcat -b 类型 &gt; 本地文件</code> 命令导出到电脑，或通过系统日志归档服务（如 <code>/data/log/</code> 目录的归档文件）保存（需 root 权限访问）。</p>
+</li>
+<li><p><strong><code>radio</code>与<code>events</code> 节点的特殊性</strong>：</p>
+</li>
+</ol>
+<ul>
+<li><p><code>/dev/log/radio</code> 节点仅关注无线通信相关日志，普通应用开发中极少用到，仅在排查手机信号、通话、Wi-Fi 连接问题时需关注；</p>
+</li>
+<li><p><code>/dev/log/events</code> 节点存储的是结构化事件数据（如事件 ID + 参数），无直接可读文本，需通过 <code>adb logcat -b events</code> 命令解析，或参考 Android 源码 <code>system/core/logcat/event.logtags</code> 定义的事件规则，才能理解事件含义（如 “key_down” 对应按键按下事件）。</p>
+</li>
+</ul>
+<h4 id="1-3-4-日志获取与设备节点的关联（实操示例）"><a href="#1-3-4-日志获取与设备节点的关联（实操示例）" class="headerlink" title="1.3.4 日志获取与设备节点的关联（实操示例）"></a>1.3.4 日志获取与设备节点的关联（实操示例）</h4><p>在实际调试中，可通过 <code>adb logcat</code> 命令的 <code>-b</code> 参数，直接关联目标设备节点，获取对应类型的日志，无需手动操作 <code>/dev/log/</code> 目录，常用命令示例如下：</p>
+<table>
+<thead>
+<tr>
+<th>需求场景</th>
+<th>ADB 命令（关联设备节点）</th>
+<th>对应的设备节点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查看应用通过 <code>Log</code> 输出的日志</td>
+<td><code>adb logcat -b main -v time *:D</code></td>
+<td><code>/dev/log/main</code></td>
+</tr>
+<tr>
+<td>查看系统服务通过 <code>Slog</code> 输出的日志</td>
+<td><code>adb logcat -b system -v time ActivityManager:D</code></td>
+<td><code>/dev/log/system</code></td>
+</tr>
+<tr>
+<td>查看手机通信（Wi-Fi&#x2F;5G）日志</td>
+<td><code>adb logcat -b radio -v time *:E</code></td>
+<td><code>/dev/log/radio</code></td>
+</tr>
+<tr>
+<td>查看系统事件（如按键、电量）日志</td>
+<td><code>adb logcat -b events</code></td>
+<td><code>/dev/log/events</code></td>
+</tr>
+<tr>
+<td>保存应用日志到本地文件</td>
+<td><code>adb logcat -b main -v time *:D &gt; D:\app_log.txt</code></td>
+<td><code>/dev/log/main</code></td>
+</tr>
+</tbody></table>
+<p><strong>例如</strong><br>我这里使用无限远程设备进行调试，输入以下命令：</p>
+<div class="code-container" data-rel="Shell"><figure class="iseeu highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">adb -s 192.168.31.227:37927 logcat –v time –b radio &gt; radioLog.txt</span><br><span class="line">adb -s 192.168.31.227:37927 logcat –v time –b system &gt; systemLog.txt</span><br><span class="line">adb -s 192.168.31.227:37927 logcat –v time –b main &gt; mainLog.txt</span><br><span class="line">adb -s 192.168.31.227:37927 logcat –v time –b events &gt; eventsLog.txt</span><br></pre></td></tr></table></figure></div>
+
+<p>即可在本地得到以下文件，并在本地定位日志信息：<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image-10.png"
+                      alt="示例"
+                ></p>
+<h2 id="二、Log-的基础使用：常见场景与示例"><a href="#二、Log-的基础使用：常见场景与示例" class="headerlink" title="二、Log 的基础使用：常见场景与示例"></a>二、Log 的基础使用：常见场景与示例</h2><h3 id="2-1-基本日志输出"><a href="#2-1-基本日志输出" class="headerlink" title="2.1 基本日志输出"></a>2.1 基本日志输出</h3><h4 id="Java-示例"><a href="#Java-示例" class="headerlink" title="Java 示例"></a>Java 示例</h4><div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> android.os.Bundle;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MainActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 定义TAG：推荐用当前类名（便于定位日志所属位置）</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">TAG</span> <span class="operator">=</span> <span class="string">&quot;MainActivity&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">      setContentView(R.layout.activity_main);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 1. Verbose：跟踪方法执行</span></span><br><span class="line"></span><br><span class="line">      Log.v(TAG, <span class="string">&quot;onCreate方法执行：开始初始化页面&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 2. Debug：打印关键变量</span></span><br><span class="line"></span><br><span class="line">      <span class="type">String</span> <span class="variable">userName</span> <span class="operator">=</span> <span class="string">&quot;ZhangSan&quot;</span>;</span><br><span class="line"></span><br><span class="line">      <span class="type">int</span> <span class="variable">userAge</span> <span class="operator">=</span> <span class="number">25</span>;</span><br><span class="line"></span><br><span class="line">      Log.d(TAG, <span class="string">&quot;用户信息：userName=&quot;</span> + userName + <span class="string">&quot;, userAge=&quot;</span> + userAge);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 3. Info：记录页面启动事件</span></span><br><span class="line"></span><br><span class="line">      Log.i(TAG, <span class="string">&quot;MainActivity页面启动完成&quot;</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 4. Warning：参数为空警告</span></span><br><span class="line"></span><br><span class="line">      <span class="type">String</span> <span class="variable">address</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (address == <span class="literal">null</span>) &#123;</span><br><span class="line"></span><br><span class="line">          Log.w(TAG, <span class="string">&quot;用户地址为空：可能影响收货地址展示&quot;</span>);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 5. Error：捕获异常并打印堆栈</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">          <span class="type">String</span> <span class="variable">nullStr</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">          Log.d(TAG, <span class="string">&quot;空字符串长度：&quot;</span> + nullStr.length());</span><br><span class="line"></span><br><span class="line">      &#125; <span class="keyword">catch</span> (NullPointerException e) &#123;</span><br><span class="line"></span><br><span class="line">          Log.e(TAG, <span class="string">&quot;空指针异常：字符串未初始化&quot;</span>, e);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-2-Logcat-的日志过滤与搜索"><a href="#2-2-Logcat-的日志过滤与搜索" class="headerlink" title="2.2 Logcat 的日志过滤与搜索"></a>2.2 Logcat 的日志过滤与搜索</h3><h4 id="2-2-1-Anroid-Studio-Logcat日志过滤"><a href="#2-2-1-Anroid-Studio-Logcat日志过滤" class="headerlink" title="2.2.1 Anroid Studio Logcat日志过滤"></a>2.2.1 Anroid Studio Logcat日志过滤</h4><p>在 Android Studio 的 Logcat 面板中，通过以下方式高效筛选日志，避免无关日志干扰：</p>
+<ol>
+<li><p><strong>按级别过滤</strong>：在搜索框输入<code>level:级别</code>（如 “Error” 仅看错误日志，“Debug” 看调试日志）；</p>
+</li>
+<li><p><strong>按 TAG 过滤</strong>：在搜索框输入<code>tag:MainActivity</code>（精确匹配 TAG 为 “MainActivity” 的日志），或<code>tag:^Main</code>（匹配 TAG 以 “Main” 开头的日志）；<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image.png"
+                      alt="alt text"
+                ></p>
+</li>
+<li><p><strong>按内容搜索</strong>：直接在搜索框输入日志内容关键词（如 “用户信息”），快速定位包含该内容的日志；</p>
+</li>
+<li><p><strong>保存过滤器</strong>：点击 Logcat 右上角收藏按钮<br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image-1.png"
+                      alt="alt text"
+                ></p>
+</li>
+</ol>
+<h4 id="2-2-1-adb-logcat日志过滤"><a href="#2-2-1-adb-logcat日志过滤" class="headerlink" title="2.2.1 adb logcat日志过滤"></a>2.2.1 adb logcat日志过滤</h4><p>详情请看这篇笔记:<br><a href="Android%20ADB%20Logcat%20%E6%97%A5%E5%BF%97%E7%AD%9B%E9%80%89%E8%AF%A6%E8%A7%A3.md">Android ADB Logcat 日志筛选详解</a></p>
+<h2 id="三、Log-的高级使用技巧"><a href="#三、Log-的高级使用技巧" class="headerlink" title="三、Log 的高级使用技巧"></a>三、Log 的高级使用技巧</h2><h3 id="3-1-日志格式化：清晰展示复杂数据"><a href="#3-1-日志格式化：清晰展示复杂数据" class="headerlink" title="3.1 日志格式化：清晰展示复杂数据"></a>3.1 日志格式化：清晰展示复杂数据</h3><p>当需要打印对象、集合等复杂数据时，直接输出会显示内存地址（如<code>User@123456</code>），需通过格式化工具将数据转为可读字符串。</p>
+<h4 id="常用格式化方式"><a href="#常用格式化方式" class="headerlink" title="常用格式化方式"></a>常用格式化方式</h4><ol>
+<li><strong>Gson&#x2F;Jackson 序列化（推荐）</strong>：通过 JSON 工具将对象转为 JSON 字符串，清晰展示字段信息（需在<code>build.gradle</code>中引入依赖）：</li>
+</ol>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 引入Gson依赖（Module级build.gradle）</span></span><br><span class="line"></span><br><span class="line">implementation <span class="string">&#x27;com.google.code.gson:gson:2.10.1&#x27;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image-7.png"
+                      alt="Gson引入"
+                ></p>
+<p>代码示例：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.gson.Gson;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义User实体类</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// getter/setter省略</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印User对象日志</span></span><br><span class="line"></span><br><span class="line"><span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;WangWu&quot;</span>, <span class="number">28</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">userJson</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Gson</span>().toJson(user);</span><br><span class="line"></span><br><span class="line">Log.d(<span class="string">&quot;UserApi&quot;</span>, <span class="string">&quot;获取用户信息：&quot;</span> + userJson);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果：D/UserApi: 获取用户信息：&#123;&quot;name&quot;:&quot;WangWu&quot;,&quot;age&quot;:28&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+<ol>
+<li><strong>自定义 toString () 方法</strong>：重写实体类的<code>toString()</code>方法，手动拼接字段信息（适用于无 JSON 依赖的场景）：</li>
+</ol>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="string">&quot;User&#123;name=&#x27;&quot;</span> + name + <span class="string">&quot;&#x27;, age=&quot;</span> + age + <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印日志</span></span><br><span class="line"></span><br><span class="line">Log.d(<span class="string">&quot;UserApi&quot;</span>, <span class="string">&quot;用户信息：&quot;</span> + user);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出结果：D/UserApi: 用户信息：User&#123;name=&#x27;WangWu&#x27;, age=28&#125;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="3-2-日志开关：控制线上-线下日志输出"><a href="#3-2-日志开关：控制线上-线下日志输出" class="headerlink" title="3.2 日志开关：控制线上 &#x2F; 线下日志输出"></a>3.2 日志开关：控制线上 &#x2F; 线下日志输出</h3><p>线上应用若保留大量日志，会增加内存占用、降低性能，甚至可能泄露敏感信息（如用户手机号、接口密钥）。需通过 “日志开关” 实现 “线下打印、线上关闭”。</p>
+<h4 id="实现方案：通过-BuildConfig-控制"><a href="#实现方案：通过-BuildConfig-控制" class="headerlink" title="实现方案：通过 BuildConfig 控制"></a>实现方案：通过 BuildConfig 控制</h4><p>Android Studio 自动生成的<code>BuildConfig</code>类包含<code>DEBUG</code>常量（Debug 模式下为<code>true</code>，Release 模式下为<code>false</code>），可基于该常量封装 Log 工具类：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> android.util.Log;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogUtil</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 日志开关：Debug模式打开，Release模式关闭</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">boolean</span> <span class="variable">LOG_ENABLE</span> <span class="operator">=</span> BuildConfig.DEBUG;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 全局TAG前缀（便于统一过滤）</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">TAG_PREFIX</span> <span class="operator">=</span> <span class="string">&quot;MyApp_&quot;</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 封装Debug级别日志</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">d</span><span class="params">(String tag, String msg)</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (LOG_ENABLE) &#123;</span><br><span class="line"></span><br><span class="line">          Log.d(TAG_PREFIX + tag, msg);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 封装Error级别日志（线上可选择性保留关键错误日志）</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">e</span><span class="params">(String tag, String msg, Throwable tr)</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 线上模式仅保留Error日志（便于定位线上崩溃）</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (LOG_ENABLE || (tr != <span class="literal">null</span> &amp;&amp; tr <span class="keyword">instanceof</span> Exception)) &#123;</span><br><span class="line"></span><br><span class="line">          Log.e(TAG_PREFIX + tag, msg, tr);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 其他级别（v/i/w）封装类似，此处省略</span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<blockquote>
+<p>注：如果AS没有生成<strong>BuildConfig.java</strong>，即模块没有该文件夹<br><code>D:\project\demo\StudyDemo\app\build\generated\source\buildConfig</code><br><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image-8.png"
+                      alt="image"
+                ><br>则需在全局<strong>gradle.properties</strong>中设置以下内容<br><code>android.defaults.buildfeatures.buildconfig=true</code><br>然后在<strong>Build菜单</strong>中<strong>Clean Project</strong>,重新运行该项目即可</p>
+</blockquote>
+<p>使用示例：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 替代原生Log.d()</span></span><br><span class="line"></span><br><span class="line">LogUtil.d(<span class="string">&quot;MainActivity&quot;</span>, <span class="string">&quot;页面 onCreate 执行&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 替代原生Log.e()</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 可能抛出异常的代码</span></span><br><span class="line"></span><br><span class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line"></span><br><span class="line">  LogUtil.e(<span class="string">&quot;UserApi&quot;</span>, <span class="string">&quot;接口请求失败&quot;</span>, e);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="3-3-日志定位"><a href="#3-3-日志定位" class="headerlink" title="3.3 日志定位"></a>3.3 日志定位</h3><p>通过在日志中添加代码行号、方法名，实现方式：通过<code>StackTraceElement</code>获取当前代码位置信息。</p>
+<p>封装示例：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LogUtil</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取当前代码位置信息（类名、方法名、行号）</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> String <span class="title function_">getCodeInfo</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="type">StackTraceElement</span> <span class="variable">stackTrace</span> <span class="operator">=</span> Thread.currentThread().getStackTrace()[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line">      <span class="type">String</span> <span class="variable">className</span> <span class="operator">=</span> stackTrace.getClassName(); <span class="comment">// 类名（含包名）</span></span><br><span class="line"></span><br><span class="line">      <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> stackTrace.getMethodName(); <span class="comment">// 方法名</span></span><br><span class="line"></span><br><span class="line">      <span class="type">int</span> <span class="variable">lineNumber</span> <span class="operator">=</span> stackTrace.getLineNumber(); <span class="comment">// 行号</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// 简化类名（去掉包名，仅保留类名）</span></span><br><span class="line"></span><br><span class="line">      <span class="type">String</span> <span class="variable">simpleClassName</span> <span class="operator">=</span> className.substring(className.lastIndexOf(<span class="string">&quot;.&quot;</span>) + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="string">&quot;[&quot;</span> + simpleClassName + <span class="string">&quot;.&quot;</span> + methodName + <span class="string">&quot;(&quot;</span> + lineNumber + <span class="string">&quot;)]: &quot;</span>;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">d</span><span class="params">(String tag, String msg)</span> &#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (BuildConfig.DEBUG) &#123;</span><br><span class="line"></span><br><span class="line">          <span class="type">String</span> <span class="variable">fullMsg</span> <span class="operator">=</span> getCodeInfo() + msg;</span><br><span class="line"></span><br><span class="line">          Log.d(<span class="string">&quot;MyApp_&quot;</span> + tag, fullMsg);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<p>输出效果：</p>
+<p><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="/img/android/debug_tool/image-9.png"
+                      alt="输出效果"
+                ></p>
+<h2 id="四、Log-使用的最佳实践（避坑指南）"><a href="#四、Log-使用的最佳实践（避坑指南）" class="headerlink" title="四、Log 使用的最佳实践（避坑指南）"></a>四、Log 使用的最佳实践（避坑指南）</h2><h3 id="4-1-规范-TAG-命名，避免全局单一-TAG"><a href="#4-1-规范-TAG-命名，避免全局单一-TAG" class="headerlink" title="4.1 规范 TAG 命名，避免全局单一 TAG"></a>4.1 规范 TAG 命名，避免全局单一 TAG</h3><ul>
+<li><p><strong>错误做法</strong>：使用全局统一 TAG（如<code>Log.d(&quot;TAG&quot;, &quot;消息&quot;)</code>），导致日志无法区分模块，难以过滤；</p>
+</li>
+<li><p><strong>正确做法</strong>：按 “模块名 + 类名” 或 “业务名” 定义 TAG，如：</p>
+<ul>
+<li><p>页面相关：<code>TAG = &quot;MainActivity&quot;</code>、<code>TAG = &quot;LoginFragment&quot;</code>；</p>
+</li>
+<li><p>接口相关：<code>TAG = &quot;UserApi&quot;</code>、<code>TAG = &quot;OrderApi&quot;</code>；</p>
+</li>
+<li><p>工具类相关：<code>TAG = &quot;SPUtil&quot;</code>、<code>TAG = &quot;NetworkUtil&quot;</code>。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="4-2-避免日志内容拼接导致的性能损耗"><a href="#4-2-避免日志内容拼接导致的性能损耗" class="headerlink" title="4.2 避免日志内容拼接导致的性能损耗"></a>4.2 避免日志内容拼接导致的性能损耗</h3><ul>
+<li><strong>错误做法</strong>：直接在 Log 方法中拼接字符串（即使日志开关关闭，拼接操作仍会执行，浪费资源）：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 错误：无论LOG_ENABLE是否为true，都会执行&quot;用户年龄：&quot;+user.getAge()的拼接</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (LOG_ENABLE) &#123;</span><br><span class="line"></span><br><span class="line">  Log.d(<span class="string">&quot;UserApi&quot;</span>, <span class="string">&quot;用户年龄：&quot;</span> + user.getAge());</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong>正确做法</strong>：先判断日志开关，再拼接内容；<code>String.format()</code>（Java）延迟拼接：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Java正确写法：开关为true时才拼接</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (LOG_ENABLE) &#123;</span><br><span class="line"></span><br><span class="line">  <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> String.format(<span class="string">&quot;用户年龄：%d&quot;</span>, user.getAge());</span><br><span class="line"></span><br><span class="line">  Log.d(<span class="string">&quot;UserApi&quot;</span>, msg);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="4-3-禁止打印敏感信息"><a href="#4-3-禁止打印敏感信息" class="headerlink" title="4.3 禁止打印敏感信息"></a>4.3 禁止打印敏感信息</h3><p>线上日志若包含敏感数据（如用户密码、手机号、接口密钥、Token），会导致信息泄露风险。需严格遵守：</p>
+<ul>
+<li><p>线下调试时，若需打印敏感信息，调试完成后必须删除；</p>
+</li>
+<li><p>线上环境，通过日志开关彻底关闭敏感信息日志，仅保留必要的错误日志；</p>
+</li>
+<li><p>接口请求 &#x2F; 响应日志，需过滤<code>Authorization</code>、<code>Cookie</code>等头信息，示例：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 过滤Token信息</span></span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">requestHeader</span> <span class="operator">=</span> <span class="string">&quot;Authorization: Bearer &quot;</span> + token;</span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">logHeader</span> <span class="operator">=</span> requestHeader.replace(token, <span class="string">&quot;***&quot;</span>); <span class="comment">// 用***替换Token</span></span><br><span class="line"></span><br><span class="line">Log.d(<span class="string">&quot;ApiRequest&quot;</span>, <span class="string">&quot;请求头：&quot;</span> + logHeader);</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="4-4-合理使用不同级别日志，避免日志泛滥"><a href="#4-4-合理使用不同级别日志，避免日志泛滥" class="headerlink" title="4.4 合理使用不同级别日志，避免日志泛滥"></a>4.4 合理使用不同级别日志，避免日志泛滥</h3><ul>
+<li><p>避免滥用<code>Verbose</code>级别：仅在跟踪极细粒度的执行流程时使用，调试完成后及时删除；</p>
+</li>
+<li><p>核心业务逻辑用<code>Debug</code>：如接口参数、数据解析结果，便于定位业务问题；</p>
+</li>
+<li><p>系统 &#x2F; 应用事件用<code>Info</code>：如应用启动、页面跳转，便于跟踪应用运行状态；</p>
+</li>
+<li><p>潜在风险用<code>Warning</code>：如参数为空、旧 API 使用，提醒开发者关注优化；</p>
+</li>
+<li><p>功能异常用<code>Error</code>：仅在崩溃、接口请求失败等影响功能的场景使用，避免将非错误场景标记为<code>Error</code>。</p>
+</li>
+</ul>
+<h2 id="五、常见问题与解决方案"><a href="#五、常见问题与解决方案" class="headerlink" title="五、常见问题与解决方案"></a>五、常见问题与解决方案</h2><h3 id="问题-1：Logcat-中看不到日志输出"><a href="#问题-1：Logcat-中看不到日志输出" class="headerlink" title="问题 1：Logcat 中看不到日志输出"></a>问题 1：Logcat 中看不到日志输出</h3><ul>
+<li><p><strong>可能原因 1</strong>：日志级别过滤错误（如打印<code>Log.d()</code>，但 Logcat 级别设为 “Error”）；</p>
+</li>
+<li><p><strong>解决</strong>：将 Logcat 级别调整为 “Debug” 或更低（如 “Verbose”），同时检查 TAG 过滤是否正确。</p>
+</li>
+<li><p><strong>可能原因 2</strong>：设备 &#x2F; 模拟器未正确连接（如 ADB 断开）；</p>
+</li>
+<li><p><strong>解决</strong>：重新连接设备，或在 Terminal 执行<code>adb kill-server &amp;&amp; adb start-server</code>重启 ADB 服务。</p>
+</li>
+<li><p><strong>可能原因 3</strong>：日志开关关闭（Release 模式下<code>BuildConfig.DEBUG</code>为<code>false</code>）；</p>
+</li>
+<li><p><strong>解决</strong>：切换至 Debug 模式编译运行（Android Studio 顶部 “Build Variants” 选择 “debug”）。</p>
+</li>
+</ul>
+<h3 id="问题-2：日志过多，难以定位关键信息"><a href="#问题-2：日志过多，难以定位关键信息" class="headerlink" title="问题 2：日志过多，难以定位关键信息"></a>问题 2：日志过多，难以定位关键信息</h3><ul>
+<li><p><strong>解决 1</strong>：使用 Logcat 的 “按 TAG 过滤” 或 “按内容搜索”，精准筛选目标日志；</p>
+</li>
+<li><p><strong>解决 2</strong>：封装 Log 工具类，给不同模块的 TAG 添加统一前缀（如<code>MyApp_MainActivity</code>），通过<code>tag:^MyApp_</code>过滤所有应用日志；</p>
+</li>
+<li><p><strong>解决 3</strong>：使用 “日志分组”（Logcat 右键日志选择 “Group by Tag”），按 TAG 归类日志。</p>
+</li>
+</ul>
+<h3 id="问题-3：线上应用需要查看日志（无开发环境）"><a href="#问题-3：线上应用需要查看日志（无开发环境）" class="headerlink" title="问题 3：线上应用需要查看日志（无开发环境）"></a>问题 3：线上应用需要查看日志（无开发环境）</h3><ul>
+<li><p><strong>解决 1</strong>：集成第三方日志收集工具（如 Bugly、Crashlytics），自动收集线上错误日志并上传到后台，支持查看崩溃堆栈与上下文日志；</p>
+</li>
+<li><p><strong>解决 2</strong>：自定义日志写入本地文件（仅在特定场景下开启，避免占用过多存储），示例：</p>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简单示例：将日志写入本地文件（需申请存储权限）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">writeLogToFile</span><span class="params">(String tag, String msg)</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!BuildConfig.DEBUG) &#123; <span class="comment">// 仅线上特定场景开启</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">          <span class="type">File</span> <span class="variable">logFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(Environment.getExternalStorageDirectory(), <span class="string">&quot;MyAppLog.txt&quot;</span>);</span><br><span class="line"></span><br><span class="line">          <span class="type">FileWriter</span> <span class="variable">writer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileWriter</span>(logFile, <span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">          writer.write(<span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>).format(<span class="keyword">new</span> <span class="title class_">Date</span>())</span><br><span class="line"></span><br><span class="line">                      + <span class="string">&quot; [&quot;</span> + tag + <span class="string">&quot;] &quot;</span> + msg + <span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">          writer.close();</span><br><span class="line"></span><br><span class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line"></span><br><span class="line">          Log.e(<span class="string">&quot;LogFile&quot;</span>, <span class="string">&quot;写入日志文件失败&quot;</span>, e);</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> Log的使用方法</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-27 22:12:23</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 22:31:22
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/27/AndroidNotes-Log的使用方法/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/27/AndroidNotes-ADB/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">ADB</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/25/AndroidNotes-SharedPreferences/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">SharedPreferences</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">Log的使用方法</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Log-%E7%9A%84%E5%9F%BA%E7%A1%80%E8%AE%A4%E7%9F%A5%EF%BC%9A%E6%A0%B8%E5%BF%83%E7%B1%BB%E4%B8%8E%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB"><span class="nav-number">1.</span> <span class="nav-text">一、Log 的基础认知：核心类与日志级别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E6%A0%B8%E5%BF%83%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB%EF%BC%885-%E7%BA%A7%EF%BC%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 核心日志级别（5 级）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Log-%E6%96%B9%E6%B3%95%E7%9A%84%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 Log 方法的参数说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-%E7%B3%BB%E7%BB%9F%E6%97%A5%E5%BF%97"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 系统日志</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Log-%E7%9A%84%E5%9F%BA%E7%A1%80%E4%BD%BF%E7%94%A8%EF%BC%9A%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF%E4%B8%8E%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.</span> <span class="nav-text">二、Log 的基础使用：常见场景与示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E5%9F%BA%E6%9C%AC%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 基本日志输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Logcat-%E7%9A%84%E6%97%A5%E5%BF%97%E8%BF%87%E6%BB%A4%E4%B8%8E%E6%90%9C%E7%B4%A2"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Logcat 的日志过滤与搜索</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Log-%E7%9A%84%E9%AB%98%E7%BA%A7%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7"><span class="nav-number">3.</span> <span class="nav-text">三、Log 的高级使用技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F%E5%8C%96%EF%BC%9A%E6%B8%85%E6%99%B0%E5%B1%95%E7%A4%BA%E5%A4%8D%E6%9D%82%E6%95%B0%E6%8D%AE"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 日志格式化：清晰展示复杂数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%97%A5%E5%BF%97%E5%BC%80%E5%85%B3%EF%BC%9A%E6%8E%A7%E5%88%B6%E7%BA%BF%E4%B8%8A-%E7%BA%BF%E4%B8%8B%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 日志开关：控制线上 &#x2F; 线下日志输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%97%A5%E5%BF%97%E5%AE%9A%E4%BD%8D"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 日志定位</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Log-%E4%BD%BF%E7%94%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%88%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、Log 使用的最佳实践（避坑指南）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E8%A7%84%E8%8C%83-TAG-%E5%91%BD%E5%90%8D%EF%BC%8C%E9%81%BF%E5%85%8D%E5%85%A8%E5%B1%80%E5%8D%95%E4%B8%80-TAG"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 规范 TAG 命名，避免全局单一 TAG</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E9%81%BF%E5%85%8D%E6%97%A5%E5%BF%97%E5%86%85%E5%AE%B9%E6%8B%BC%E6%8E%A5%E5%AF%BC%E8%87%B4%E7%9A%84%E6%80%A7%E8%83%BD%E6%8D%9F%E8%80%97"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 避免日志内容拼接导致的性能损耗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E7%A6%81%E6%AD%A2%E6%89%93%E5%8D%B0%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF"><span class="nav-number">4.3.</span> <span class="nav-text">4.3 禁止打印敏感信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E5%90%88%E7%90%86%E4%BD%BF%E7%94%A8%E4%B8%8D%E5%90%8C%E7%BA%A7%E5%88%AB%E6%97%A5%E5%BF%97%EF%BC%8C%E9%81%BF%E5%85%8D%E6%97%A5%E5%BF%97%E6%B3%9B%E6%BB%A5"><span class="nav-number">4.4.</span> <span class="nav-text">4.4 合理使用不同级别日志，避免日志泛滥</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">五、常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9ALogcat-%E4%B8%AD%E7%9C%8B%E4%B8%8D%E5%88%B0%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="nav-number">5.1.</span> <span class="nav-text">问题 1：Logcat 中看不到日志输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9A%E6%97%A5%E5%BF%97%E8%BF%87%E5%A4%9A%EF%BC%8C%E9%9A%BE%E4%BB%A5%E5%AE%9A%E4%BD%8D%E5%85%B3%E9%94%AE%E4%BF%A1%E6%81%AF"><span class="nav-number">5.2.</span> <span class="nav-text">问题 2：日志过多，难以定位关键信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9A%E7%BA%BF%E4%B8%8A%E5%BA%94%E7%94%A8%E9%9C%80%E8%A6%81%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97%EF%BC%88%E6%97%A0%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%EF%BC%89"><span class="nav-number">5.3.</span> <span class="nav-text">问题 3：线上应用需要查看日志（无开发环境）</span></a></li></ol></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 22 篇文章
+                    </span>
+                    
+                        <span>
+                            共 57.9k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>

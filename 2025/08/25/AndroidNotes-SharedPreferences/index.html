@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/25/androidnotes-sharedpreferences/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SharedPreferences">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/25/AndroidNotes-SharedPreferences/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-25T14:03:17.000Z">
+<meta property="article:modified_time" content="2025-08-30T14:40:05.379Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            SharedPreferences | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">7</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">22</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">SharedPreferences</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-25 22:03:17</span>
+        <span class="mobile">2025-08-25 22:03:17</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 22:40:05</span>
+            <span class="mobile">2025-08-30 22:40:05</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E7%BB%84%E4%BB%B6/">组件</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>1.9k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>7 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<h2 id="一、SharedPreferences-概述"><a href="#一、SharedPreferences-概述" class="headerlink" title="一、SharedPreferences 概述"></a>一、SharedPreferences 概述</h2><h3 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h3><p>SharedPreferences（简称 SP）是 Android 系统提供的一种轻量级数据存储方式，本质是基于 XML 文件存储键值对（Key-Value）数据的工具类，主要用于存储少量、简单的配置信息，如用户登录状态、应用个性化设置（字体大小、主题颜色）等。</p>
+<h3 id="2-核心特点"><a href="#2-核心特点" class="headerlink" title="2. 核心特点"></a>2. 核心特点</h3><ul>
+<li><p><strong>轻量级</strong>：存储数据量有限（建议不超过 100KB），不适合存储大量或复杂数据（如图片、大文本）。</p>
+</li>
+<li><p><strong>键值对结构</strong>：数据以 “键 &#x3D; 值” 形式存储，键为 String 类型，值支持 String、Int、Long、Float、Boolean 五种基本数据类型。</p>
+</li>
+<li><p><strong>XML 存储</strong>：数据最终保存为 XML 文件，默认存储路径为<code>/data/data/&lt;应用包名&gt;/shared_prefs/</code>，文件名可自定义。</p>
+</li>
+<li><p><strong>线程安全</strong>：SharedPreferences 的读取操作是线程安全的（内部通过锁机制实现），但写入操作需注意同步问题。</p>
+</li>
+<li><p><strong>持久化存储</strong>：数据会长期保存，除非手动清除（如卸载应用、清除应用数据）或代码删除。</p>
+</li>
+</ul>
+<h2 id="二、SharedPreferences-使用流程"><a href="#二、SharedPreferences-使用流程" class="headerlink" title="二、SharedPreferences 使用流程"></a>二、SharedPreferences 使用流程</h2><h3 id="1-初始化（获取-SharedPreferences-实例）"><a href="#1-初始化（获取-SharedPreferences-实例）" class="headerlink" title="1. 初始化（获取 SharedPreferences 实例）"></a>1. 初始化（获取 SharedPreferences 实例）</h3><p>获取 SP 实例有两种核心方式，区别在于是否指定存储模式（Android 7.0 后部分模式已废弃）：</p>
+<h4 id="方式-1：通过-Context-获取（推荐）"><a href="#方式-1：通过-Context-获取（推荐）" class="headerlink" title="方式 1：通过 Context 获取（推荐）"></a>方式 1：通过 Context 获取（推荐）</h4><div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 参数1：XML文件名（无需后缀，系统自动添加.xml）</span><br><span class="line"></span><br><span class="line">// 参数2：存储模式（见下文“存储模式说明”）</span><br><span class="line"></span><br><span class="line">SharedPreferences sp = getSharedPreferences(&quot;MyAppConfig&quot;, Context.MODE\_PRIVATE);</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="方式-2：通过-Activity-获取（默认以当前-Activity-类名作为文件名）"><a href="#方式-2：通过-Activity-获取（默认以当前-Activity-类名作为文件名）" class="headerlink" title="方式 2：通过 Activity 获取（默认以当前 Activity 类名作为文件名）"></a>方式 2：通过 Activity 获取（默认以当前 Activity 类名作为文件名）</h4><div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// 仅在Activity中可用，文件名默认为“MainActivity.xml”（当前Activity类名）</span><br><span class="line"></span><br><span class="line">SharedPreferences sp = getPreferences(Context.MODE\_PRIVATE);</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="2-存储数据（通过-Editor-编辑）"><a href="#2-存储数据（通过-Editor-编辑）" class="headerlink" title="2. 存储数据（通过 Editor 编辑）"></a>2. 存储数据（通过 Editor 编辑）</h3><p>SP 本身不支持直接修改数据，需通过<code>SharedPreferences.Editor</code>接口实现写入、修改操作，核心步骤如下：</p>
+<h4 id="完整代码示例"><a href="#完整代码示例" class="headerlink" title="完整代码示例"></a>完整代码示例</h4><div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// 1. 获取Editor实例</span><br><span class="line"></span><br><span class="line">SharedPreferences.Editor editor = sp.edit();</span><br><span class="line"></span><br><span class="line">// 2. 存入数据（支持5种基本类型）</span><br><span class="line"></span><br><span class="line">editor.putString(&quot;username&quot;, &quot;zhangsan&quot;); // 字符串</span><br><span class="line"></span><br><span class="line">editor.putInt(&quot;age&quot;, 20); // 整数</span><br><span class="line"></span><br><span class="line">editor.putBoolean(&quot;isLogin&quot;, true); // 布尔值</span><br><span class="line"></span><br><span class="line">editor.putFloat(&quot;height&quot;, 175.5f); // 浮点数</span><br><span class="line"></span><br><span class="line">editor.putLong(&quot;timestamp&quot;, System.currentTimeMillis()); // 长整数</span><br><span class="line"></span><br><span class="line">// 3. 提交数据（两种方式，二选一）</span><br><span class="line"></span><br><span class="line">// 方式A：同步提交（阻塞线程，返回布尔值表示是否成功）</span><br><span class="line"></span><br><span class="line">boolean isSuccess = editor.commit();</span><br><span class="line"></span><br><span class="line">// 方式B：异步提交（非阻塞，Android 2.3+推荐，无返回值）</span><br><span class="line"></span><br><span class="line">editor.apply();</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="关键区别：commit-vs-apply"><a href="#关键区别：commit-vs-apply" class="headerlink" title="关键区别：commit () vs apply ()"></a>关键区别：commit () vs apply ()</h4><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>commit()</th>
+<th>apply()</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>执行方式</td>
+<td>同步（阻塞当前线程）</td>
+<td>异步（先写入内存，再异步写入磁盘）</td>
+</tr>
+<tr>
+<td>返回值</td>
+<td>boolean（成功 &#x2F; 失败）</td>
+<td>无返回值</td>
+</tr>
+<tr>
+<td>适用场景</td>
+<td>需要确认写入结果时</td>
+<td>无需确认结果，追求性能时</td>
+</tr>
+<tr>
+<td>线程安全性</td>
+<td>线程安全（单进程内）</td>
+<td>线程安全（单进程内）</td>
+</tr>
+</tbody></table>
+<h3 id="3-读取数据"><a href="#3-读取数据" class="headerlink" title="3. 读取数据"></a>3. 读取数据</h3><p>通过 SP 实例的<code>getXxx()</code>方法读取数据，需指定 “键” 和 “默认值”（当键不存在时返回默认值）：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">// 读取字符串（默认值为&quot;&quot;）</span><br><span class="line"></span><br><span class="line">String username = sp.getString(&quot;username&quot;, &quot;&quot;);</span><br><span class="line"></span><br><span class="line">// 读取整数（默认值为0）</span><br><span class="line"></span><br><span class="line">int age = sp.getInt(&quot;age&quot;, 0);</span><br><span class="line"></span><br><span class="line">// 读取布尔值（默认值为false）</span><br><span class="line"></span><br><span class="line">boolean isLogin = sp.getBoolean(&quot;isLogin&quot;, false);</span><br><span class="line"></span><br><span class="line">// 读取浮点数（默认值为0.0f）</span><br><span class="line"></span><br><span class="line">float height = sp.getFloat(&quot;height&quot;, 0.0f);</span><br><span class="line"></span><br><span class="line">// 读取长整数（默认值为0L）</span><br><span class="line"></span><br><span class="line">long timestamp = sp.getLong(&quot;timestamp&quot;, 0L);</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="4-修改数据"><a href="#4-修改数据" class="headerlink" title="4. 修改数据"></a>4. 修改数据</h3><p>修改数据的流程与 “存储数据” 完全一致：通过 Editor 重新存入相同的 “键” 和新的 “值”，新值会覆盖旧值：</p>
+<div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SharedPreferences.Editor editor = sp.edit();</span><br><span class="line"></span><br><span class="line">editor.putInt(&quot;age&quot;, 21); // 覆盖原有“age”的值</span><br><span class="line"></span><br><span class="line">editor.apply();</span><br></pre></td></tr></table></figure></div>
+
+<h3 id="5-删除数据"><a href="#5-删除数据" class="headerlink" title="5. 删除数据"></a>5. 删除数据</h3><p>删除数据有两种常用方式：删除指定键、删除所有键值对。</p>
+<h4 id="方式-1：删除指定键"><a href="#方式-1：删除指定键" class="headerlink" title="方式 1：删除指定键"></a>方式 1：删除指定键</h4><div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SharedPreferences.Editor editor = sp.edit();</span><br><span class="line"></span><br><span class="line">editor.remove(&quot;height&quot;); // 删除“height”对应的键值对</span><br><span class="line"></span><br><span class="line">editor.apply();</span><br></pre></td></tr></table></figure></div>
+
+<h4 id="方式-2：清空所有数据"><a href="#方式-2：清空所有数据" class="headerlink" title="方式 2：清空所有数据"></a>方式 2：清空所有数据</h4><div class="code-container" data-rel="Plaintext"><figure class="iseeu highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SharedPreferences.Editor editor = sp.edit();</span><br><span class="line"></span><br><span class="line">editor.clear(); // 清空当前SP文件中所有键值对</span><br><span class="line"></span><br><span class="line">editor.apply();</span><br></pre></td></tr></table></figure></div>
+
+<h2 id="三、存储模式说明（重要）"><a href="#三、存储模式说明（重要）" class="headerlink" title="三、存储模式说明（重要）"></a>三、存储模式说明（重要）</h2><p>初始化 SP 时的 “存储模式” 参数决定了 SP 文件的访问权限，Android 不同版本对模式的支持不同，需特别注意兼容性：</p>
+<table>
+<thead>
+<tr>
+<th>模式常量</th>
+<th>作用说明</th>
+<th>适用版本</th>
+<th>注意事项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>MODE_PRIVATE</code></td>
+<td>仅当前应用可访问（私有模式）</td>
+<td>所有版本（推荐）</td>
+<td>最安全的模式，其他应用无法读取或修改</td>
+</tr>
+<tr>
+<td><code>MODE_WORLD_READABLE</code></td>
+<td>允许其他应用读取当前 SP 文件</td>
+<td>Android 1.0 - 6.0</td>
+<td>Android 7.0（API 24）后废弃，存在安全风险</td>
+</tr>
+<tr>
+<td><code>MODE_WORLD_WRITEABLE</code></td>
+<td>允许其他应用修改当前 SP 文件</td>
+<td>Android 1.0 - 6.0</td>
+<td>Android 7.0 后废弃，严重安全隐患</td>
+</tr>
+<tr>
+<td><code>MODE_MULTI_PROCESS</code></td>
+<td>支持多进程访问（已废弃）</td>
+<td>Android 1.0 - 2.3</td>
+<td>Android 3.0 后不推荐，多进程需用 ContentProvider</td>
+</tr>
+</tbody></table>
+<p><strong>注意</strong>：Android 7.0 及以上版本，若使用<code>MODE_WORLD_READABLE</code>或<code>MODE_WORLD_WRITEABLE</code>，会直接抛出<code>SecurityException</code>，因此<strong>所有场景优先使用</strong><code>MODE_PRIVATE</code>。</p>
+<h2 id="四、适用场景与不适用场景"><a href="#四、适用场景与不适用场景" class="headerlink" title="四、适用场景与不适用场景"></a>四、适用场景与不适用场景</h2><h3 id="1-适用场景"><a href="#1-适用场景" class="headerlink" title="1. 适用场景"></a>1. 适用场景</h3><ul>
+<li><p>存储应用配置：如是否开启推送、主题设置、字体大小等。</p>
+</li>
+<li><p>存储用户轻量信息：如用户名、登录状态（是否记住密码）。</p>
+</li>
+<li><p>存储临时标记：如首次启动引导标记、是否已展示广告等。</p>
+</li>
+</ul>
+<h3 id="2-不适用场景"><a href="#2-不适用场景" class="headerlink" title="2. 不适用场景"></a>2. 不适用场景</h3><ul>
+<li><p>存储大量数据：如列表数据、大文本（SP 读取效率低，易导致 ANR）。</p>
+</li>
+<li><p>存储复杂数据：如对象、集合（需手动序列化，操作繁琐）。</p>
+</li>
+<li><p>存储敏感数据：如密码、银行卡号（SP 文件为明文存储，安全性差，需加密）。</p>
+</li>
+<li><p>多进程共享数据：SP 不支持跨进程同步，多进程场景需用<code>ContentProvider</code>或<code>MMKV</code>。</p>
+</li>
+</ul>
+<h2 id="五、注意事项与优化建议"><a href="#五、注意事项与优化建议" class="headerlink" title="五、注意事项与优化建议"></a>五、注意事项与优化建议</h2><h3 id="1-安全性问题"><a href="#1-安全性问题" class="headerlink" title="1. 安全性问题"></a>1. 安全性问题</h3><ul>
+<li><strong>明文存储风险</strong>：SP 的 XML 文件为明文格式，直接存储敏感数据（如密码）会被轻易破解。解决方案：</li>
+</ul>
+<ol>
+<li><p>对敏感数据进行加密（如 AES 加密）后再存储。</p>
+</li>
+<li><p>使用 AndroidX 提供的<code>EncryptedSharedPreferences</code>（推荐，封装了加密逻辑）。</p>
+</li>
+</ol>
+<ul>
+<li><strong>权限控制</strong>：务必使用<code>MODE_PRIVATE</code>，避免使用已废弃的公开模式。</li>
+</ul>
+<h3 id="2-性能优化"><a href="#2-性能优化" class="headerlink" title="2. 性能优化"></a>2. 性能优化</h3><ul>
+<li><p><strong>减少频繁读写</strong>：避免在循环、UI 线程中频繁调用<code>apply()</code>或<code>commit()</code>（尤其是<code>commit()</code>会阻塞线程）。</p>
+</li>
+<li><p><strong>批量操作</strong>：多个键值对的写入 &#x2F; 修改应合并为一次 Editor 操作，减少 IO 次数。</p>
+</li>
+<li><p><strong>避免存储大数据</strong>：单个 SP 文件建议不超过 100KB，大数据推荐用<code>Room</code>（数据库）或<code>File</code>存储。</p>
+</li>
+</ul>
+<h3 id="3-兼容性问题"><a href="#3-兼容性问题" class="headerlink" title="3. 兼容性问题"></a>3. 兼容性问题</h3><ul>
+<li><p><strong>Android 7.0 + 模式废弃</strong>：不再支持<code>MODE_WORLD_READABLE</code>和<code>MODE_WORLD_WRITEABLE</code>，需替换为<code>MODE_PRIVATE</code>。</p>
+</li>
+<li><p><strong>多进程问题</strong>：若应用需多进程共享数据，SP 无法满足需求，推荐使用腾讯的<code>MMKV</code>（基于 mmap 的高效存储框架，支持多进程、加密）。</p>
+</li>
+</ul>
+<h3 id="4-其他注意事项"><a href="#4-其他注意事项" class="headerlink" title="4. 其他注意事项"></a>4. 其他注意事项</h3><ul>
+<li><p><strong>键的唯一性</strong>：同一 SP 文件中，键名需唯一，否则会出现值覆盖问题。</p>
+</li>
+<li><p><strong>默认值设置</strong>：读取数据时务必指定合理的默认值（如字符串默认值用<code>&quot;&quot;</code>，而非<code>null</code>，避免空指针异常）。</p>
+</li>
+<li><p><strong>清理无用数据</strong>：当某些键值对不再使用时，应及时调用<code>remove()</code>删除，避免冗余数据占用空间。</p>
+</li>
+</ul>
+<h2 id="六、替代方案推荐"><a href="#六、替代方案推荐" class="headerlink" title="六、替代方案推荐"></a>六、替代方案推荐</h2><p>当 SP 无法满足需求时（如多进程、加密、大量数据），可考虑以下替代方案：</p>
+<ol>
+<li><p><strong>MMKV</strong>：腾讯开源的高效存储框架，基于 mmap，支持键值对、加密、多进程，性能远超 SP。</p>
+</li>
+<li><p><strong>DataStore</strong>：Google 推荐的 SP 替代方案，基于 Kotlin 协程，支持异步、类型安全，分为<code>Preferences DataStore</code>（键值对）和<code>Proto DataStore</code>（对象存储）。</p>
+</li>
+<li><p><strong>Room</strong>：Android 官方 ORM 数据库框架，适合存储大量、复杂结构的数据。</p>
+</li>
+</ol>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> SharedPreferences</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-25 22:03:17</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 22:40:05
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/25/AndroidNotes-SharedPreferences/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/27/AndroidNotes-Log%E7%9A%84%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Log的使用方法</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/25/Repo%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Repo工具学习笔记</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">SharedPreferences</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81SharedPreferences-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">一、SharedPreferences 概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1. 定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E7%89%B9%E7%82%B9"><span class="nav-number">1.2.</span> <span class="nav-text">2. 核心特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81SharedPreferences-%E4%BD%BF%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">二、SharedPreferences 使用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9D%E5%A7%8B%E5%8C%96%EF%BC%88%E8%8E%B7%E5%8F%96-SharedPreferences-%E5%AE%9E%E4%BE%8B%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">1. 初始化（获取 SharedPreferences 实例）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE%EF%BC%88%E9%80%9A%E8%BF%87-Editor-%E7%BC%96%E8%BE%91%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2. 存储数据（通过 Editor 编辑）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE"><span class="nav-number">2.3.</span> <span class="nav-text">3. 读取数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BF%AE%E6%94%B9%E6%95%B0%E6%8D%AE"><span class="nav-number">2.4.</span> <span class="nav-text">4. 修改数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE"><span class="nav-number">2.5.</span> <span class="nav-text">5. 删除数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AD%98%E5%82%A8%E6%A8%A1%E5%BC%8F%E8%AF%B4%E6%98%8E%EF%BC%88%E9%87%8D%E8%A6%81%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、存储模式说明（重要）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF%E4%B8%8E%E4%B8%8D%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.</span> <span class="nav-text">四、适用场景与不适用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.1.</span> <span class="nav-text">1. 适用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%B8%8D%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">4.2.</span> <span class="nav-text">2. 不适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9%E4%B8%8E%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">五、注意事项与优化建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AE%89%E5%85%A8%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">1. 安全性问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">5.2.</span> <span class="nav-text">2. 性能优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%85%BC%E5%AE%B9%E6%80%A7%E9%97%AE%E9%A2%98"><span class="nav-number">5.3.</span> <span class="nav-text">3. 兼容性问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%85%B6%E4%BB%96%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="nav-number">5.4.</span> <span class="nav-text">4. 其他注意事项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%9B%BF%E4%BB%A3%E6%96%B9%E6%A1%88%E6%8E%A8%E8%8D%90"><span class="nav-number">6.</span> <span class="nav-text">六、替代方案推荐</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 22 篇文章
+                    </span>
+                    
+                        <span>
+                            共 57.9k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>

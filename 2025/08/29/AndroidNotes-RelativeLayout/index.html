@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/29/androidnotes-relativelayout/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RelativeLayout">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/29/AndroidNotes-RelativeLayout/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-29T12:36:41.000Z">
+<meta property="article:modified_time" content="2025-08-30T14:27:43.369Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            RelativeLayout | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">7</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">22</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">RelativeLayout</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-29 20:36:41</span>
+        <span class="mobile">2025-08-29 20:36:41</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-08-30 22:27:43</span>
+            <span class="mobile">2025-08-30 22:27:43</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E5%B8%83%E5%B1%80/">布局</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>3.9k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>16 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<p>RelativeLayout（相对布局）是 Android 开发中最灵活的布局之一，它允许子视图通过 “相对位置”（如相对于父布局、相对于其他子视图）进行定位，无需依赖固定的线性排列。掌握 RelativeLayout 能高效实现复杂界面（如登录页、详情页），是 Android 布局开发的核心技能。本文将从基础概念、核心属性、布局技巧、实战案例及常见问题展开，提供可直接复用的代码示例。</p>
+<h2 id="一、基础认知：RelativeLayout-的核心特性"><a href="#一、基础认知：RelativeLayout-的核心特性" class="headerlink" title="一、基础认知：RelativeLayout 的核心特性"></a>一、基础认知：RelativeLayout 的核心特性</h2><h3 id="1-1-什么是-RelativeLayout？"><a href="#1-1-什么是-RelativeLayout？" class="headerlink" title="1.1 什么是 RelativeLayout？"></a>1.1 什么是 RelativeLayout？</h3><p>RelativeLayout 通过 “相对关系” 定义子视图的位置，核心特点：</p>
+<ul>
+<li><p><strong>定位灵活</strong>：子视图可相对于父布局（如父布局的顶部、底部、中心）或其他子视图（如在 Button 右侧、TextView 下方）定位；</p>
+</li>
+<li><p><strong>层级可控</strong>：支持通过<code>android:layout_above</code>&#x2F;<code>android:layout_below</code>等属性调整子视图的上下顺序，无需嵌套多层布局；</p>
+</li>
+<li><p><strong>减少嵌套</strong>：相比 LinearLayout（线性布局），实现复杂布局时可减少嵌套层级，提升渲染性能（如 “左侧图片 + 右侧文字 + 底部按钮” 的布局，LinearLayout 需 2 层嵌套，RelativeLayout1 层即可）。</p>
+</li>
+</ul>
+<h3 id="1-2-适用场景"><a href="#1-2-适用场景" class="headerlink" title="1.2 适用场景"></a>1.2 适用场景</h3><ul>
+<li><p>实现非对称布局（如登录页：Logo 居中、输入框在 Logo 下方、按钮在输入框下方）；</p>
+</li>
+<li><p>子视图需相互依赖定位的场景（如 “确认按钮” 在 “取消按钮” 右侧，“提示文字” 在 “输入框” 上方）；</p>
+</li>
+<li><p>需灵活调整子视图位置的动态界面（如根据屏幕尺寸自动适配控件位置）。</p>
+</li>
+</ul>
+<h2 id="二、核心属性：RelativeLayout-的定位规则"><a href="#二、核心属性：RelativeLayout-的定位规则" class="headerlink" title="二、核心属性：RelativeLayout 的定位规则"></a>二、核心属性：RelativeLayout 的定位规则</h2><p>RelativeLayout 的属性分为<strong>子视图属性</strong>（控制子视图自身位置）和<strong>父布局属性</strong>（控制所有子视图的默认对齐方式），核心属性如下表：</p>
+<h3 id="2-1-父布局属性（控制子视图默认对齐）"><a href="#2-1-父布局属性（控制子视图默认对齐）" class="headerlink" title="2.1 父布局属性（控制子视图默认对齐）"></a>2.1 父布局属性（控制子视图默认对齐）</h3><p>作用于 RelativeLayout 自身，定义所有子视图的默认对齐方式（若子视图未单独设置对齐属性，则继承父布局配置）：</p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+<th>可选值</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>android:gravity</code></td>
+<td>控制所有子视图在父布局中的对齐方式</td>
+<td><code>top</code>（顶部）、<code>bottom</code>（底部）、<code>left</code>（左侧）、<code>right</code>（右侧）、<code>center</code>（中心）、<code>center_vertical</code>（垂直居中）、<code>center_horizontal</code>（水平居中）等（可组合，用 `</td>
+<td>` 分隔）</td>
+</tr>
+</tbody></table>
+<h3 id="2-2-子视图属性（控制单个子视图位置）"><a href="#2-2-子视图属性（控制单个子视图位置）" class="headerlink" title="2.2 子视图属性（控制单个子视图位置）"></a>2.2 子视图属性（控制单个子视图位置）</h3><p>作用于 RelativeLayout 的子视图（如 TextView、Button），通过 “相对父布局” 或 “相对其他子视图” 定位，是 RelativeLayout 的核心：</p>
+<h4 id="2-2-1-相对于父布局定位（最常用）"><a href="#2-2-1-相对于父布局定位（最常用）" class="headerlink" title="2.2.1 相对于父布局定位（最常用）"></a>2.2.1 相对于父布局定位（最常用）</h4><p>子视图相对于 RelativeLayout 的边缘或中心定位：</p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+<th>可选值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>android:layout_alignParentTop</code></td>
+<td>是否与父布局顶部对齐</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图顶部与父布局顶部重合</td>
+</tr>
+<tr>
+<td><code>android:layout_alignParentBottom</code></td>
+<td>是否与父布局底部对齐</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图底部与父布局底部重合</td>
+</tr>
+<tr>
+<td><code>android:layout_alignParentLeft</code></td>
+<td>是否与父布局左侧对齐</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图左侧与父布局左侧重合</td>
+</tr>
+<tr>
+<td><code>android:layout_alignParentRight</code></td>
+<td>是否与父布局右侧对齐</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图右侧与父布局右侧重合</td>
+</tr>
+<tr>
+<td><code>android:layout_centerInParent</code></td>
+<td>是否在父布局中心（水平 + 垂直居中）</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图完全位于父布局中心</td>
+</tr>
+<tr>
+<td><code>android:layout_centerVertical</code></td>
+<td>是否在父布局垂直居中</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图垂直方向居中，水平方向需配合其他属性（如<code>layout_alignParentLeft</code>）</td>
+</tr>
+<tr>
+<td><code>android:layout_centerHorizontal</code></td>
+<td>是否在父布局水平居中</td>
+<td><code>true</code>&#x2F;<code>false</code></td>
+<td><code>true</code>：子视图水平方向居中，垂直方向需配合其他属性（如<code>layout_alignParentTop</code>）</td>
+</tr>
+</tbody></table>
+<p><strong>示例</strong>：子视图在父布局中心且顶部对齐父布局：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_height</span>=<span class="string">&quot;200dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:background</span>=<span class="string">&quot;#F5F5F5&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;居中且顶部对齐&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_centerHorizontal</span>=<span class="string">&quot;true&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">水平居中</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_alignParentTop=&quot;true&quot;    <span class="comment">&lt;!-- 顶部对齐父布局 --&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_marginTop=&quot;20dp&quot; /&gt;      <span class="comment">&lt;!-- 顶部间距20dp --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h4 id="2-2-2-相对于其他子视图定位（实现复杂布局）"><a href="#2-2-2-相对于其他子视图定位（实现复杂布局）" class="headerlink" title="2.2.2 相对于其他子视图定位（实现复杂布局）"></a>2.2.2 相对于其他子视图定位（实现复杂布局）</h4><p>子视图相对于另一个子视图的边缘定位，需先给目标子视图设置<code>android:id</code>（唯一标识），再通过<code>layout_toXXXOf</code>&#x2F;<code>layout_alignXXX</code>属性关联。</p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+<th>取值格式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>android:layout_toLeftOf</code></td>
+<td>子视图位于目标视图的左侧</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_toLeftOf=&quot;@id/btn_confirm&quot;</code>（子视图在 btn_confirm 左侧）</td>
+</tr>
+<tr>
+<td><code>android:layout_toRightOf</code></td>
+<td>子视图位于目标视图的右侧</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_toRightOf=&quot;@id/tv_title&quot;</code>（子视图在 tv_title 右侧）</td>
+</tr>
+<tr>
+<td><code>android:layout_above</code></td>
+<td>子视图位于目标视图的上方</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_above=&quot;@id/et_password&quot;</code>（子视图在 et_password 上方）</td>
+</tr>
+<tr>
+<td><code>android:layout_below</code></td>
+<td>子视图位于目标视图的下方</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_below=&quot;@id/iv_logo&quot;</code>（子视图在 iv_logo 下方）</td>
+</tr>
+<tr>
+<td><code>android:layout_alignTop</code></td>
+<td>子视图顶部与目标视图顶部对齐</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_alignTop=&quot;@id/iv_icon&quot;</code>（子视图顶部与 iv_icon 顶部重合）</td>
+</tr>
+<tr>
+<td><code>android:layout_alignBottom</code></td>
+<td>子视图底部与目标视图底部对齐</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_alignBottom=&quot;@id/tv_desc&quot;</code>（子视图底部与 tv_desc 底部重合）</td>
+</tr>
+<tr>
+<td><code>android:layout_alignLeft</code></td>
+<td>子视图左侧与目标视图左侧对齐</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_alignLeft=&quot;@id/et_username&quot;</code>（子视图左侧与 et_username 左侧重合）</td>
+</tr>
+<tr>
+<td><code>android:layout_alignRight</code></td>
+<td>子视图右侧与目标视图右侧对齐</td>
+<td><code>@id/目标视图ID</code></td>
+<td><code>android:layout_alignRight=&quot;@id/btn_cancel&quot;</code>（子视图右侧与 btn_cancel 右侧重合）</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>注意：<br>为了更好适配从右往左排列的应用，官方推荐将layout_toRightOf更换为layout_toEndOf，将layout_toLeftOf更换为layout_toStartOf<br>下面的margin也一样</p>
+</blockquote>
+<p><strong>关键注意点</strong>：</p>
+<ul>
+<li><p>引用目标视图 ID 时，若目标视图在当前子视图<strong>之后定义</strong>（XML 中位置靠后），需用<code>@+id/目标视图ID</code>（动态创建 ID）；若目标视图在当前子视图<strong>之前定义</strong>，用<code>@id/目标视图ID</code>（引用已存在的 ID）；</p>
+</li>
+<li><p>避免循环依赖（如 A 在 B 右侧，B 在 A 左侧），会导致布局解析错误。</p>
+</li>
+</ul>
+<p><strong>示例</strong>：两个按钮并排（取消按钮在左，确认按钮在右，间距 20dp）：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:padding</span>=<span class="string">&quot;20dp&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 取消按钮（先定义，设置ID） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/btn_cancel&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;取消&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignParentLeft</span>=<span class="string">&quot;true&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 确认按钮（后定义，引用取消按钮的ID，位于其右侧） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/btn_confirm&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;确认&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_toRightOf</span>=<span class="string">&quot;@id/btn_cancel&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">位于取消按钮右侧</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_marginLeft=&quot;20dp&quot; /&gt;        <span class="comment">&lt;!-- 与取消按钮间距20dp --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h4 id="2-2-3-间距与偏移属性（微调位置）"><a href="#2-2-3-间距与偏移属性（微调位置）" class="headerlink" title="2.2.3 间距与偏移属性（微调位置）"></a>2.2.3 间距与偏移属性（微调位置）</h4><p>通过以下属性控制子视图与父布局、其他子视图的间距，或微调子视图的位置：</p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>作用</th>
+<th>取值格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>android:layout_margin</code></td>
+<td>子视图与外部元素的间距（上下左右）</td>
+<td>尺寸值（如<code>10dp</code>、<code>16px</code>）</td>
+<td>所有方向间距相同，优先级低于单独方向的 margin</td>
+</tr>
+<tr>
+<td><code>android:layout_marginTop</code></td>
+<td>子视图顶部间距</td>
+<td>尺寸值</td>
+<td>子视图顶部与上方元素的距离</td>
+</tr>
+<tr>
+<td><code>android:layout_marginBottom</code></td>
+<td>子视图底部间距</td>
+<td>尺寸值</td>
+<td>子视图底部与下方元素的距离</td>
+</tr>
+<tr>
+<td><code>android:layout_marginLeft</code></td>
+<td>子视图左侧间距</td>
+<td>尺寸值</td>
+<td>子视图左侧与左侧元素的距离</td>
+</tr>
+<tr>
+<td><code>android:layout_marginRight</code></td>
+<td>子视图右侧间距</td>
+<td>尺寸值</td>
+<td>子视图右侧与右侧元素的距离</td>
+</tr>
+<tr>
+<td><code>android:layout_centerHorizontal</code>+<code>android:layout_marginStart</code></td>
+<td>水平居中时微调左右位置</td>
+<td>尺寸值（正数向右偏移，负数向左偏移）</td>
+<td>如<code>layout_marginStart=&quot;20dp&quot;</code>：水平居中的子视图向右偏移 20dp</td>
+</tr>
+</tbody></table>
+<h2 id="三、实战案例：用-RelativeLayout-实现常见界面"><a href="#三、实战案例：用-RelativeLayout-实现常见界面" class="headerlink" title="三、实战案例：用 RelativeLayout 实现常见界面"></a>三、实战案例：用 RelativeLayout 实现常见界面</h2><h3 id="案例-1：登录页布局（经典场景）"><a href="#案例-1：登录页布局（经典场景）" class="headerlink" title="案例 1：登录页布局（经典场景）"></a>案例 1：登录页布局（经典场景）</h3><p>实现 “Logo 居中→用户名输入框在 Logo 下方→密码输入框在用户名下方→登录按钮在密码下方且水平居中→忘记密码在登录按钮右侧” 的布局：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_height</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:background</span>=<span class="string">&quot;#FFFFFF&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:padding</span>=<span class="string">&quot;30dp&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 1. Logo（水平居中，顶部间距80dp） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">ImageView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/iv_logo&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;120dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;120dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:src</span>=<span class="string">&quot;@mipmap/ic_launcher&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_centerHorizontal</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_marginTop</span>=<span class="string">&quot;80dp&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 2. 用户名输入框（在Logo下方，水平居中，左右对齐父布局） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/et_username&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;50dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:hint</span>=<span class="string">&quot;请输入用户名&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:paddingLeft</span>=<span class="string">&quot;15dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:background</span>=<span class="string">&quot;@drawable/shape_edittext&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">自定义输入框背景</span>（<span class="attr">可选</span>） <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_below=&quot;@id/iv_logo&quot;</span><br><span class="line"></span><br><span class="line">      android:layout_centerHorizontal=&quot;true&quot;</span><br><span class="line"></span><br><span class="line">      android:layout_marginTop=&quot;40dp&quot; /&gt;</span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 3. 密码输入框（在用户名下方，与用户名对齐） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">EditText</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/et_password&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;50dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:hint</span>=<span class="string">&quot;请输入密码&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:inputType</span>=<span class="string">&quot;textPassword&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:paddingLeft</span>=<span class="string">&quot;15dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:background</span>=<span class="string">&quot;@drawable/shape_edittext&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_below</span>=<span class="string">&quot;@id/et_username&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignLeft</span>=<span class="string">&quot;@id/et_username&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">与用户名输入框左侧对齐</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_alignRight=&quot;@id/et_username&quot; <span class="comment">&lt;!-- 与用户名输入框右侧对齐 --&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_marginTop=&quot;20dp&quot; /&gt;</span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 4. 忘记密码（在密码输入框右侧，与密码输入框顶部对齐） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/tv_forget_pwd&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;忘记密码？&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textColor</span>=<span class="string">&quot;#3F51B5&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textSize</span>=<span class="string">&quot;14sp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_below</span>=<span class="string">&quot;@id/et_password&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignRight</span>=<span class="string">&quot;@id/et_password&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">与密码输入框右侧对齐</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_marginTop=&quot;10dp&quot; /&gt;</span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 5. 登录按钮（在密码输入框下方，水平居中，宽度与输入框对齐） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/btn_login&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;50dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;登录&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textColor</span>=<span class="string">&quot;#FFFFFF&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:background</span>=<span class="string">&quot;#3F51B5&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_below</span>=<span class="string">&quot;@id/et_password&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignLeft</span>=<span class="string">&quot;@id/et_username&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignRight</span>=<span class="string">&quot;@id/et_username&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_marginTop</span>=<span class="string">&quot;40dp&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<p><strong>补充</strong>：自定义输入框背景（<code>drawable/shape_edittext.xml</code>），实现圆角边框：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">shape</span> <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">     <span class="attr">android:shape</span>=<span class="string">&quot;rectangle&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">solid</span> <span class="attr">android:color</span>=<span class="string">&quot;#FFFFFF&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 输入框背景色 --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">stroke</span> <span class="attr">android:width</span>=<span class="string">&quot;1dp&quot;</span> <span class="attr">android:color</span>=<span class="string">&quot;#E0E0E0&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 边框宽度与颜色 --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">corners</span> <span class="attr">android:radius</span>=<span class="string">&quot;8dp&quot;</span> /&gt;</span> <span class="comment">&lt;!-- 圆角半径 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">shape</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h3 id="案例-2：商品详情页布局（左侧图片-右侧信息）"><a href="#案例-2：商品详情页布局（左侧图片-右侧信息）" class="headerlink" title="案例 2：商品详情页布局（左侧图片 + 右侧信息）"></a>案例 2：商品详情页布局（左侧图片 + 右侧信息）</h3><p>实现 “左侧商品图片→右侧商品名称（顶部对齐图片）→右侧商品价格（在名称下方）→右侧购买按钮（在价格下方，底部对齐图片）” 的布局：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">RelativeLayout</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">xmlns:android</span>=<span class="string">&quot;http://schemas.android.com/apk/res/android&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:layout_height</span>=<span class="string">&quot;120dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:padding</span>=<span class="string">&quot;15dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">  <span class="attr">android:background</span>=<span class="string">&quot;#FFFFFF&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 1. 商品图片（左侧，固定宽高） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">ImageView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/iv_goods&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;100dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;100dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:src</span>=<span class="string">&quot;@mipmap/ic_goods&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:scaleType</span>=<span class="string">&quot;centerCrop&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">图片裁剪适配</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_alignParentLeft=&quot;true&quot; /&gt;</span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 2. 商品名称（右侧，顶部对齐图片，最多2行） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/tv_goods_name&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;match_parent&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;2025新款夏季短袖T恤男士宽松纯棉透气上衣&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textSize</span>=<span class="string">&quot;16sp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:maxLines</span>=<span class="string">&quot;2&quot;</span>  &lt;!<span class="attr">--</span> <span class="attr">最多显示2行</span> <span class="attr">--</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      android:ellipsize=&quot;end&quot;  <span class="comment">&lt;!-- 超出部分用...表示 --&gt;</span></span><br><span class="line"></span><br><span class="line">      android:layout_toRightOf=&quot;@id/iv_goods&quot;</span><br><span class="line"></span><br><span class="line">      android:layout_alignTop=&quot;@id/iv_goods&quot;</span><br><span class="line"></span><br><span class="line">      android:layout_marginLeft=&quot;15dp&quot;</span><br><span class="line"></span><br><span class="line">      android:layout_marginRight=&quot;80dp&quot; /&gt; <span class="comment">&lt;!-- 右侧预留购买按钮宽度 --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 3. 商品价格（右侧，在名称下方，红色字体） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">TextView</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/tv_goods_price&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;wrap_content&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;¥99.00&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textSize</span>=<span class="string">&quot;18sp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textColor</span>=<span class="string">&quot;#FF4444&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_toRightOf</span>=<span class="string">&quot;@id/iv_goods&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_below</span>=<span class="string">&quot;@id/tv_goods_name&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_marginLeft</span>=<span class="string">&quot;15dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_marginTop</span>=<span class="string">&quot;10dp&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">&lt;!-- 4. 购买按钮（右侧，底部对齐图片，固定宽高） --&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="name">Button</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:id</span>=<span class="string">&quot;@+id/btn_buy&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_width</span>=<span class="string">&quot;70dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_height</span>=<span class="string">&quot;35dp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:text</span>=<span class="string">&quot;立即购买&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textSize</span>=<span class="string">&quot;12sp&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:textColor</span>=<span class="string">&quot;#FFFFFF&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:background</span>=<span class="string">&quot;#FF4444&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignParentRight</span>=<span class="string">&quot;true&quot;</span></span></span><br><span class="line"><span class="tag"></span></span><br><span class="line"><span class="tag">      <span class="attr">android:layout_alignBottom</span>=<span class="string">&quot;@id/iv_goods&quot;</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">RelativeLayout</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+
+<h2 id="四、避坑指南：常见问题与解决方案"><a href="#四、避坑指南：常见问题与解决方案" class="headerlink" title="四、避坑指南：常见问题与解决方案"></a>四、避坑指南：常见问题与解决方案</h2><h3 id="问题-1：子视图位置错乱（如重叠、超出屏幕）"><a href="#问题-1：子视图位置错乱（如重叠、超出屏幕）" class="headerlink" title="问题 1：子视图位置错乱（如重叠、超出屏幕）"></a>问题 1：子视图位置错乱（如重叠、超出屏幕）</h3><ul>
+<li><p><strong>原因 1</strong>：未正确设置<code>layout_width</code>&#x2F;<code>layout_height</code>（如子视图设为<code>match_parent</code>但未限制位置，导致覆盖其他视图）；</p>
+</li>
+<li><p><strong>解决</strong>：根据需求设置尺寸（如按钮用<code>wrap_content</code>，输入框用<code>match_parent</code>但需配合<code>layout_alignLeft</code>&#x2F;<code>layout_alignRight</code>限制左右边界）。</p>
+</li>
+<li><p><strong>原因 2</strong>：引用的目标视图 ID 不存在或拼写错误（如<code>@id/btn_confirm</code>写成<code>@id/btn_confim</code>）；</p>
+</li>
+<li><p><strong>解决</strong>：核对目标视图的<code>android:id</code>，确保拼写一致；若目标视图在当前子视图之后定义，需用<code>@+id/目标ID</code>。</p>
+</li>
+<li><p><strong>原因 3</strong>：循环依赖（如 A 在 B 右侧，B 在 A 左侧）；</p>
+</li>
+<li><p><strong>解决</strong>：简化定位关系，确保子视图的定位逻辑单向（如仅 A 依赖 B，B 不依赖 A）。</p>
+</li>
+</ul>
+<h3 id="问题-2：子视图在不同屏幕尺寸下适配差（如小屏显示不全）"><a href="#问题-2：子视图在不同屏幕尺寸下适配差（如小屏显示不全）" class="headerlink" title="问题 2：子视图在不同屏幕尺寸下适配差（如小屏显示不全）"></a>问题 2：子视图在不同屏幕尺寸下适配差（如小屏显示不全）</h3><ul>
+<li><p><strong>原因</strong>：使用固定尺寸（如<code>100px</code>）或硬编码间距，未适配不同屏幕密度；</p>
+</li>
+<li><p><strong>解决</strong>：</p>
+</li>
+</ul>
+<ol>
+<li><p>尺寸单位用<code>dp</code>（适配屏幕密度），文字用<code>sp</code>（适配字体大小设置）；</p>
+</li>
+<li><p>关键视图用<code>match_parent</code>&#x2F;<code>wrap_content</code>，配合<code>margin</code>&#x2F;<code>padding</code>微调，避免固定宽高；</p>
+</li>
+<li><p>复杂屏幕适配可结合<code>layout_weight</code>（需嵌套 LinearLayout）或<code>ConstraintLayout</code>（更灵活的现代布局）。</p>
+</li>
+</ol>
+<h3 id="问题-3：RelativeLayout-嵌套过多导致性能差"><a href="#问题-3：RelativeLayout-嵌套过多导致性能差" class="headerlink" title="问题 3：RelativeLayout 嵌套过多导致性能差"></a>问题 3：RelativeLayout 嵌套过多导致性能差</h3><ul>
+<li><p><strong>原因</strong>：为实现复杂布局，嵌套多层 RelativeLayout（如 3 层以上），导致渲染时多次测量计算；</p>
+</li>
+<li><p><strong>解决</strong>：</p>
+</li>
+</ul>
+<ol>
+<li><p>简化布局层级，用单层 RelativeLayout 实现多视图定位（如案例 2 的 “图片 + 文字 + 按钮” 仅 1 层）；</p>
+</li>
+<li><p>复杂布局推荐使用<code>ConstraintLayout</code>（Android Studio 推荐的现代布局），支持类似 RelativeLayout 的定位，且嵌套层级更少。</p>
+</li>
+</ol>
+<h3 id="问题-4：子视图无法显示（如完全看不到）"><a href="#问题-4：子视图无法显示（如完全看不到）" class="headerlink" title="问题 4：子视图无法显示（如完全看不到）"></a>问题 4：子视图无法显示（如完全看不到）</h3><ul>
+<li><p><strong>原因 1</strong>：子视图被其他视图覆盖（如后定义的视图在上方，覆盖了先定义的视图）；</p>
+</li>
+<li><p><strong>解决</strong>：调整子视图在 XML 中的定义顺序（后定义的视图层级更高，会覆盖先定义的视图），或通过<code>android:elevation</code>（Android 5.0+）设置层级（值越大越靠上）。</p>
+</li>
+<li><p><strong>原因 2</strong>：子视图的<code>visibility</code>设为<code>gone</code>（完全隐藏）或<code>invisible</code>（透明但占空间）；</p>
+</li>
+<li><p><strong>解决</strong>：确保子视图的<code>android:visibility=&quot;visible&quot;</code>（默认值）。</p>
+</li>
+<li><p><strong>原因 3</strong>：子视图的尺寸为 0（如<code>layout_width=&quot;0dp&quot;</code>且未设置定位，导致宽度为 0）；</p>
+</li>
+<li><p><strong>解决</strong>：核对<code>layout_width</code>&#x2F;<code>layout_height</code>，确保尺寸合理，或通过定位属性（如<code>layout_alignLeft</code>&#x2F;<code>layout_alignRight</code>）拉伸视图。</p>
+</li>
+</ul>
+<h2 id="五、RelativeLayout-vs-LinearLayout-vs-ConstraintLayout（选型建议）"><a href="#五、RelativeLayout-vs-LinearLayout-vs-ConstraintLayout（选型建议）" class="headerlink" title="五、RelativeLayout vs LinearLayout vs ConstraintLayout（选型建议）"></a>五、RelativeLayout vs LinearLayout vs ConstraintLayout（选型建议）</h2><table>
+<thead>
+<tr>
+<th>布局类型</th>
+<th>核心优势</th>
+<th>核心劣势</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RelativeLayout</td>
+<td>定位灵活，单层可实现多视图复杂布局</td>
+<td>嵌套过多性能差，屏幕适配较繁琐</td>
+<td>简单非对称布局（如登录页、列表项）</td>
+</tr>
+<tr>
+<td>LinearLayout</td>
+<td>布局逻辑简单（线性排列），性能好</td>
+<td>复杂布局需多层嵌套，定位不灵活</td>
+<td>对称线性布局（如垂直排列的按钮组）</td>
+</tr>
+<tr>
+<td>ConstraintLayout</td>
+<td>定位灵活（支持 RelativeLayout 的所有功能），嵌套少，支持百分比 &#x2F; 链布局，适配性强</td>
+<td>学习成本稍高，XML 代码较冗长（需手动写约束）</td>
+<td>复杂现代布局（如首页、详情页），推荐优先使用</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议</strong>：</p>
+<ul>
+<li><p>简单布局（如登录页、列表项）：用 RelativeLayout（逻辑清晰，代码简洁）；</p>
+</li>
+<li><p>线性对称布局（如垂直按钮组）：用 LinearLayout（性能好，代码简单）；</p>
+</li>
+<li><p>复杂布局（如首页、多模块详情页）：用 ConstraintLayout（Android 官方推荐，适配性和性能更优）。</p>
+</li>
+</ul>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> RelativeLayout</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-29 20:36:41</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-08-30 22:27:43
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/29/AndroidNotes-RelativeLayout/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/29/AndroidNotes-Android-Notification/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">Android Notification</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/29/AndroidNotes-LinearLayout/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">LinearLayout</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">RelativeLayout</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E7%A1%80%E8%AE%A4%E7%9F%A5%EF%BC%9ARelativeLayout-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">一、基础认知：RelativeLayout 的核心特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E4%BB%80%E4%B9%88%E6%98%AF-RelativeLayout%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 什么是 RelativeLayout？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A0%B8%E5%BF%83%E5%B1%9E%E6%80%A7%EF%BC%9ARelativeLayout-%E7%9A%84%E5%AE%9A%E4%BD%8D%E8%A7%84%E5%88%99"><span class="nav-number">2.</span> <span class="nav-text">二、核心属性：RelativeLayout 的定位规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E7%88%B6%E5%B8%83%E5%B1%80%E5%B1%9E%E6%80%A7%EF%BC%88%E6%8E%A7%E5%88%B6%E5%AD%90%E8%A7%86%E5%9B%BE%E9%BB%98%E8%AE%A4%E5%AF%B9%E9%BD%90%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 父布局属性（控制子视图默认对齐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E5%AD%90%E8%A7%86%E5%9B%BE%E5%B1%9E%E6%80%A7%EF%BC%88%E6%8E%A7%E5%88%B6%E5%8D%95%E4%B8%AA%E5%AD%90%E8%A7%86%E5%9B%BE%E4%BD%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 子视图属性（控制单个子视图位置）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%9E%E6%88%98%E6%A1%88%E4%BE%8B%EF%BC%9A%E7%94%A8-RelativeLayout-%E5%AE%9E%E7%8E%B0%E5%B8%B8%E8%A7%81%E7%95%8C%E9%9D%A2"><span class="nav-number">3.</span> <span class="nav-text">三、实战案例：用 RelativeLayout 实现常见界面</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B-1%EF%BC%9A%E7%99%BB%E5%BD%95%E9%A1%B5%E5%B8%83%E5%B1%80%EF%BC%88%E7%BB%8F%E5%85%B8%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">案例 1：登录页布局（经典场景）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B-2%EF%BC%9A%E5%95%86%E5%93%81%E8%AF%A6%E6%83%85%E9%A1%B5%E5%B8%83%E5%B1%80%EF%BC%88%E5%B7%A6%E4%BE%A7%E5%9B%BE%E7%89%87-%E5%8F%B3%E4%BE%A7%E4%BF%A1%E6%81%AF%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">案例 2：商品详情页布局（左侧图片 + 右侧信息）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97%EF%BC%9A%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E4%B8%8E%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">4.</span> <span class="nav-text">四、避坑指南：常见问题与解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-1%EF%BC%9A%E5%AD%90%E8%A7%86%E5%9B%BE%E4%BD%8D%E7%BD%AE%E9%94%99%E4%B9%B1%EF%BC%88%E5%A6%82%E9%87%8D%E5%8F%A0%E3%80%81%E8%B6%85%E5%87%BA%E5%B1%8F%E5%B9%95%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">问题 1：子视图位置错乱（如重叠、超出屏幕）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-2%EF%BC%9A%E5%AD%90%E8%A7%86%E5%9B%BE%E5%9C%A8%E4%B8%8D%E5%90%8C%E5%B1%8F%E5%B9%95%E5%B0%BA%E5%AF%B8%E4%B8%8B%E9%80%82%E9%85%8D%E5%B7%AE%EF%BC%88%E5%A6%82%E5%B0%8F%E5%B1%8F%E6%98%BE%E7%A4%BA%E4%B8%8D%E5%85%A8%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">问题 2：子视图在不同屏幕尺寸下适配差（如小屏显示不全）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-3%EF%BC%9ARelativeLayout-%E5%B5%8C%E5%A5%97%E8%BF%87%E5%A4%9A%E5%AF%BC%E8%87%B4%E6%80%A7%E8%83%BD%E5%B7%AE"><span class="nav-number">4.3.</span> <span class="nav-text">问题 3：RelativeLayout 嵌套过多导致性能差</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%97%AE%E9%A2%98-4%EF%BC%9A%E5%AD%90%E8%A7%86%E5%9B%BE%E6%97%A0%E6%B3%95%E6%98%BE%E7%A4%BA%EF%BC%88%E5%A6%82%E5%AE%8C%E5%85%A8%E7%9C%8B%E4%B8%8D%E5%88%B0%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">问题 4：子视图无法显示（如完全看不到）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81RelativeLayout-vs-LinearLayout-vs-ConstraintLayout%EF%BC%88%E9%80%89%E5%9E%8B%E5%BB%BA%E8%AE%AE%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、RelativeLayout vs LinearLayout vs ConstraintLayout（选型建议）</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 22 篇文章
+                    </span>
+                    
+                        <span>
+                            共 57.9k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>
