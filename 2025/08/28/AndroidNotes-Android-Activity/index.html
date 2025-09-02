@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Android">
+    
+    <meta name="author" content="Alistair Xie">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://alistairxie.github.io/2025/08/28/androidnotes-android-activity/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Activity">
+<meta property="og:url" content="https://alistairxie.github.io/2025/08/28/AndroidNotes-Android-Activity/index.html">
+<meta property="og:site_name" content="Alistair&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2025-08-28T13:36:23.000Z">
+<meta property="article:modified_time" content="2025-09-02T13:51:11.843Z">
+<meta property="article:author" content="Alistair Xie">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://alistairxie.github.io/images/redefine-og.webp">
+    
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/img/profile.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/profile.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/img/profile.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            Android Activity | Alistair&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
+
+
+    <!--- Inject Part-->
+    
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
+
+    
+
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
+
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
+
+    <!--- Font Part-->
+    
+    
+    
+        <link href="" rel="stylesheet">
+    
+    
+    
+    
+
+    <script id="hexo-configurations">
+    window.config = {"hostname":"alistairxie.github.io","root":"/","language":"zh-CN"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":false,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":true,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":true,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":false,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":true},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":false,"id":null}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/img/bg-light.jpg","dark":"/img/bg-dark.jpg"},"title":"Alistair的博客","subtitle":{"text":["欢迎来到我的Blog","在这里","我会分享我的所学所想！"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#F8F9FA","dark":"#d1d1b6"},"text_style":{"title_size":"3rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/alistairxie","instagram":null,"zhihu":null,"twitter":null,"email":null},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":true,"type":"fixed","audios":[{"name":"凡人","artist":"段奥娟","url":"/music/段奥娟 - 凡人.mp3","cover":"/music/凡人.jpeg","lrc":"/music/lrc.lrc"}]},"mermaid":{"enable":true,"version":"10.8.2"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#E8E8F0","right":"#eaf4fb","transparency":65},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Categories":{"icon":"fa-solid fa-folder","path":"/categories/"},"动态":{"icon":"fa fa-lightbulb","path":"/essays/"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Github":"https://github.com/alistairxie","Blog":"https://alistairxie.github.io/","Friends":"/links/"}}},"search":{"enable":false,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":"道友，步步为修，心静自明。","show_on_mobile":true,"links":{"归档":{"path":"/archives","icon":"fa-regular fa-archive"},"标签":{"path":"/tags","icon":"fa-regular fa-tags"},"分类":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2025/8/29 22:00:14"};
+    window.lang_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 个月前","year":"%s 年前"};
+    window.data = {"masonry":false};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
+
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
+
+    
+    
+    
+    
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+
+
+<body>
+	<div class="progress-bar-container">
+	
+
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
+</div>
+
+<main class="page-container" id="swup">
+
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Alistair&#39;s Blog
+                
+            </a>
+        </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    首页
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    归档
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/categories/"
+                                        >
+                                    <i class="fa-solid fa-folder fa-fw"></i>
+                                    分类
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/essays/"
+                                        >
+                                    <i class="fa fa-lightbulb fa-fw"></i>
+                                    动态
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    关于
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://github.com/alistairxie">
+                                                    GITHUB
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="https://alistairxie.github.io/">
+                                                    BLOG
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a href="/links/">
+                                                    友情链接
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                首页
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                归档
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/categories/"
+                        >
+                            <span>
+                                分类
+                            </span>
+                            
+                                <i class="fa-solid fa-folder fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/essays/"
+                        >
+                            <span>
+                                动态
+                            </span>
+                            
+                                <i class="fa fa-lightbulb fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                关于
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://github.com/alistairxie">GITHUB</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="https://alistairxie.github.io/">BLOG</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/links/">友情链接</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/archives"
+                        >
+                            <span>归档</span>
+                            <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>标签</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>分类</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">5</div>
+        <div class="label text-third-text-color text-sm">标签</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">8</div>
+        <div class="label text-third-text-color text-sm">分类</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">23</div>
+        <div class="label text-third-text-color text-sm">文章</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			<div class="w-full flex items-center pt-6 justify-start">
+				<h1 class="article-title-regular text-second-text-color tracking-tight text-4xl md:text-6xl font-semibold px-2 sm:px-6 md:px-8 py-3">Android Activity</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/img/profile.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Alistair Xie</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv3</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2025-08-28 21:36:23</span>
+        <span class="mobile">2025-08-28 21:36:23</span>
+        <span class="hover-info">创建</span>
+    </span>
+    
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2025-09-02 21:51:11</span>
+            <span class="mobile">2025-09-02 21:51:11</span>
+            <span class="hover-info">更新</span>
+        </span>
+    
+
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
+                
+                
+                    
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">安卓开发笔记</a>&nbsp;
+                        </li>
+                    
+                    
+                
+                    
+                        
+                            <li>></li>
+                        
+                        <li>
+                            <a href="/categories/%E5%AE%89%E5%8D%93%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/%E5%9B%9B%E5%A4%A7%E7%BB%84%E4%BB%B6/">四大组件</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Android/">Android</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>3.6k 字</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>15 分钟</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<h2 id="（一）Activity-基础概念"><a href="#（一）Activity-基础概念" class="headerlink" title="（一）Activity 基础概念"></a>（一）Activity 基础概念</h2><p>Activity 是 Android 应用的可视化界面载体，每个屏幕显示的内容基本对应一个 Activity（如登录界面→LoginActivity、首页→MainActivity），多个 Activity 通过 Intent 实现跳转和数据传递，Activity 的管理依赖 “任务栈（Task Stack）”—— 遵循 “先进后出” 原则，新启动的 Activity 压入栈顶，按下返回键时栈顶 Activity 出栈，直至栈空应用退出。</p>
+<h2 id="（二）Activity-生命周期"><a href="#（二）Activity-生命周期" class="headerlink" title="（二）Activity 生命周期"></a>（二）Activity 生命周期</h2><ul>
+<li>1.<strong>核心回调方法及作用</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>方法名</th>
+<th>调用时机</th>
+<th>核心作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>onCreate()</td>
+<td>Activity 首次创建时调用（仅一次）</td>
+<td>初始化布局（setContentView (R.layout.activity_main)）、绑定控件、初始化数据（如读取 SP 存储、初始化网络请求工具）</td>
+</tr>
+<tr>
+<td>onStart()</td>
+<td>Activity 由 “不可见” 变为 “可见” 时调用</td>
+<td>执行与界面可见相关的操作（如启动动画、注册广播接收器）</td>
+</tr>
+<tr>
+<td>onResume()</td>
+<td>Activity 获取焦点（可与用户交互）时调用</td>
+<td>启动定时器、开启传感器监听（如定位、加速度传感器）、恢复媒体播放</td>
+</tr>
+<tr>
+<td>onPause()</td>
+<td>Activity 失去焦点（仍可见，如被弹窗覆盖）时调用</td>
+<td>暂停定时器、停止传感器监听、保存临时数据（避免数据丢失）</td>
+</tr>
+<tr>
+<td>onStop()</td>
+<td>Activity 完全不可见时调用</td>
+<td>释放非必要资源（如关闭数据库连接、停止网络请求）、取消广播注册</td>
+</tr>
+<tr>
+<td>onDestroy()</td>
+<td>Activity 销毁时调用（仅一次）</td>
+<td>释放所有资源（如关闭文件流、取消服务绑定）、避免内存泄漏</td>
+</tr>
+<tr>
+<td>onRestart()</td>
+<td>Activity 由 “销毁状态” 重新启动前调用</td>
+<td>恢复 Activity 重启前的状态（如恢复列表滚动位置）</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>2.<strong>生命周期流程示例</strong>：打开 MainActivity→跳转至 SecondActivity→返回 MainActivity→关闭应用</p>
+</li>
+<li><p>MainActivity：onCreate () → onStart () → onResume ()（显示并可交互）</p>
+</li>
+<li><p>跳转 SecondActivity：MainActivity.onPause () → SecondActivity.onCreate () → SecondActivity.onStart () → SecondActivity.onResume () → MainActivity.onStop ()</p>
+</li>
+<li><p>返回 MainActivity：SecondActivity.onPause () → MainActivity.onRestart () → MainActivity.onStart () → MainActivity.onResume () → SecondActivity.onStop () → SecondActivity.onDestroy ()</p>
+</li>
+<li><p>关闭应用：MainActivity.onPause () → MainActivity.onStop () → MainActivity.onDestroy ()</p>
+</li>
+<li><p>3.<strong>遇到的问题与解决</strong><br>AlertDialog为什么不会触发onPause()？</p>
+</li>
+<li><p>Activity的前台状态保持不变：当AlertDialog显示时，它通常是通过覆盖当前Activity的部分或全部UI来实现的，这意味着用户仍然与同一个Activity交互。</p>
+</li>
+<li><p>生命周期回调：在Android中，onPause()方法是在Activity即将失去焦点并被另一个Activity覆盖时调用的。由于AlertDialog并没有导致Activity失去焦点，所以不会触发onPause()。</p>
+</li>
+</ul>
+<h2 id="（三）Activity-跳转与-Intent-使用"><a href="#（三）Activity-跳转与-Intent-使用" class="headerlink" title="（三）Activity 跳转与 Intent 使用"></a>（三）Activity 跳转与 Intent 使用</h2><h3 id="1-显式-Intent（明确指定目标-Activity，适用于应用内部跳转）"><a href="#1-显式-Intent（明确指定目标-Activity，适用于应用内部跳转）" class="headerlink" title="1. 显式 Intent（明确指定目标 Activity，适用于应用内部跳转）"></a>1. 显式 Intent（明确指定目标 Activity，适用于应用内部跳转）</h3><ul>
+<li><strong>基本跳转（无数据传递）</strong>：在 MainActivity 中通过按钮点击触发跳转至 SecondActivity，代码如下：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MainActivity中按钮点击事件</span></span><br><span class="line"><span class="type">Button</span> <span class="variable">btnJump</span> <span class="operator">=</span> findViewById(R.id.btn_jump);</span><br><span class="line">btnJump.setOnClickListener(v -&gt; &#123;</span><br><span class="line">    <span class="comment">// 1. 创建Intent对象，参数1：当前Activity上下文，参数2：目标Activity.class</span></span><br><span class="line">    <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(MainActivity.<span class="built_in">this</span>, SecondActivity.class);</span><br><span class="line">    <span class="comment">// 2. 启动目标Activity</span></span><br><span class="line">    startActivity(intent);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong>带数据传递（传递基本数据类型）</strong>：跳转时传递用户名和年龄至 SecondActivity：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MainActivity中传递数据</span></span><br><span class="line">intent.putExtra(<span class="string">&quot;username&quot;</span>, <span class="string">&quot;张三&quot;</span>); <span class="comment">// 键值对，键为字符串，值为String类型</span></span><br><span class="line">intent.putExtra(<span class="string">&quot;age&quot;</span>, <span class="number">25</span>); <span class="comment">// 值为int类型</span></span><br><span class="line">startActivity(intent);</span><br><span class="line"></span><br><span class="line"><span class="comment">// SecondActivity中接收数据</span></span><br><span class="line"><span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> getIntent(); <span class="comment">// 获取启动当前Activity的Intent对象</span></span><br><span class="line"><span class="type">String</span> <span class="variable">username</span> <span class="operator">=</span> intent.getStringExtra(<span class="string">&quot;username&quot;</span>); <span class="comment">// 根据键获取String类型数据</span></span><br><span class="line"><span class="type">int</span> <span class="variable">age</span> <span class="operator">=</span> intent.getIntExtra(<span class="string">&quot;age&quot;</span>, <span class="number">0</span>); <span class="comment">// 第二个参数为默认值，若未获取到数据则返回0</span></span><br><span class="line"><span class="comment">// 显示数据（如设置到TextView）</span></span><br><span class="line"><span class="type">TextView</span> <span class="variable">tvInfo</span> <span class="operator">=</span> findViewById(R.id.tv_info);</span><br><span class="line">tvInfo.setText(<span class="string">&quot;用户名：&quot;</span> + username + <span class="string">&quot;，年龄：&quot;</span> + age);</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><p><strong>带返回值跳转 registerForActivityResult（适用于子 Activity 需向父 Activity 返回数据，如选择图片后返回图片路径）</strong></p>
+<ul>
+<li>具体可见:<a class="link"   target="_blank" rel="noopener" href="https://developer.android.com/training/basics/intents/result#java" >官方文档<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
+</ul>
+</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Activity A</span></span><br><span class="line"><span class="comment">// 1. 创建一个ActivityResultLauncher对象，用于启动Activity并接收返回结果</span></span><br><span class="line">ActivityResultLauncher&lt;Intent&gt; mStartForResult = registerForActivityResult(</span><br><span class="line">    <span class="comment">// 2. 使用StartActivityForResult合约，表示这是标准的Activity启动-结果返回模式</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ActivityResultContracts</span>.StartActivityForResult(), </span><br><span class="line">    <span class="comment">// 3. 定义结果回调接口</span></span><br><span class="line">    <span class="keyword">new</span> <span class="title class_">ActivityResultCallback</span>&lt;ActivityResult&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onActivityResult</span><span class="params">(ActivityResult o)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (o.getResultCode() == Activity.RESULT_OK)&#123;</span><br><span class="line">            <span class="comment">// 5. 获取返回的Intent数据</span></span><br><span class="line">            <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> o.getData();</span><br><span class="line">            <span class="keyword">if</span>(intent!=<span class="literal">null</span>)&#123;</span><br><span class="line">                <span class="comment">// 6. 从Intent中取出key为&quot;activityB&quot;的字符串数据，并设置到TextView上</span></span><br><span class="line">                tvA.setText(intent.getStringExtra(<span class="string">&quot;activityB&quot;</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_comonent_interac);</span><br><span class="line"></span><br><span class="line">    <span class="type">Button</span> <span class="variable">btnStart</span> <span class="operator">=</span> findViewById(R.id.btn_start);</span><br><span class="line">    btnStart.setOnClickListener(v -&gt; &#123;</span><br><span class="line">        <span class="type">Intent</span> <span class="variable">intentA</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(ComponentInteracActivity.<span class="built_in">this</span>, ComponentInteracBActivity.class);</span><br><span class="line">        <span class="type">String</span> <span class="variable">strEtA</span> <span class="operator">=</span> etA.getText().toString();</span><br><span class="line">        intentA.putExtra(<span class="string">&quot;activityA&quot;</span>, strEtA);</span><br><span class="line"></span><br><span class="line">        mStartForResult.launch(intentA); <span class="comment">// 以返回结果为意图启动ActivityB</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Activity B:</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">    setContentView(R.layout.activity_component_interac_bactivity);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 接收来自Activity A的数据</span></span><br><span class="line">    <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> getIntent();</span><br><span class="line">    <span class="type">String</span> <span class="variable">textFromA</span> <span class="operator">=</span> intent.getStringExtra(<span class="string">&quot;activityA&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="type">Button</span> <span class="variable">btnReturn</span> <span class="operator">=</span> findViewById(R.id.btn_rerurn);</span><br><span class="line">    btnReturn.setOnClickListener(<span class="keyword">new</span> <span class="title class_">View</span>.OnClickListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onClick</span><span class="params">(View v)</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">strEtB</span> <span class="operator">=</span> etB.getText().toString();</span><br><span class="line">            <span class="type">Intent</span> <span class="variable">intentB</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(ComponentInteracBActivity.<span class="built_in">this</span>, ComponentInteracActivity.class);</span><br><span class="line">            intentB.putExtra(<span class="string">&quot;activityB&quot;</span>, strEtB);</span><br><span class="line">            setResult(RESULT_OK, intentB); <span class="comment">// 返回结果</span></span><br><span class="line">            finish();  <span class="comment">// 销毁ActivityB</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><del><strong>带返回值跳转startActivityForResult</strong></del></li>
+</ul>
+<span style="color: red;">
+    由于Activity Result API在类型安全性、回调解耦、重新创建调用组件保证结果不丢失等方面具有更好的优势，startActivityForResult方法在Android 11 (API level 30)被弃用，以下代码仅供参考
+</span>
+
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MainActivity中启动Activity并等待返回结果（请求码：100，用于区分不同的返回请求）</span></span><br><span class="line">startActivityForResult(intent, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// SecondActivity中设置返回数据并关闭自身</span></span><br><span class="line"><span class="type">Button</span> <span class="variable">btnReturn</span> <span class="operator">=</span> findViewById(R.id.btn_return);</span><br><span class="line">btnReturn.setOnClickListener(v -&gt; &#123;</span><br><span class="line">    <span class="type">Intent</span> <span class="variable">returnIntent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">    returnIntent.putExtra(<span class="string">&quot;result&quot;</span>, <span class="string">&quot;子Activity返回的数据&quot;</span>);</span><br><span class="line">    <span class="comment">// 设置返回结果，参数1：结果码（RESULT_OK表示成功，RESULT_CANCELED表示取消），参数2：返回的Intent</span></span><br><span class="line">    setResult(RESULT_OK, returnIntent);</span><br><span class="line">    finish(); <span class="comment">// 关闭当前Activity，返回父Activity</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// MainActivity中重写onActivityResult方法接收返回数据</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onActivityResult</span><span class="params">(<span class="type">int</span> requestCode, <span class="type">int</span> resultCode, <span class="meta">@Nullable</span> Intent data)</span> &#123;</span><br><span class="line">    <span class="built_in">super</span>.onActivityResult(requestCode, resultCode, data);</span><br><span class="line">    <span class="comment">// 1. 判断请求码（确认是哪个请求的返回）</span></span><br><span class="line">    <span class="keyword">if</span> (requestCode == <span class="number">100</span>) &#123;</span><br><span class="line">        <span class="comment">// 2. 判断结果码（确认子Activity是否成功返回数据）</span></span><br><span class="line">        <span class="keyword">if</span> (resultCode == RESULT_OK &amp;&amp; data != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> data.getStringExtra(<span class="string">&quot;result&quot;</span>);</span><br><span class="line">            <span class="comment">// 处理返回数据（如显示到TextView）</span></span><br><span class="line">            <span class="type">TextView</span> <span class="variable">tvResult</span> <span class="operator">=</span> findViewById(R.id.tv_result);</span><br><span class="line">            tvResult.setText(<span class="string">&quot;子Activity返回：&quot;</span> + result);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><strong>注意</strong><ul>
+<li><p><strong><code>startActivity(intent)</code>与<code>getIntent()</code>无法实现 Activity 双向数据传递</strong></p>
+<pre class="mermaid">    graph TD;
+A[Activity A]-->|startActivity|B[Activity B];
+B[Activity B]-->|startActivity|A[Activity A];</pre>
+
+<ul>
+<li><code>startActivity(intent)</code>用于启动新 Activity 并传递数据（单向从启动方到被启动方），而<code>getIntent()</code>仅能获取启动当前 Activity 的原始 Intent，二者组合无法实现两个 Activity（如 A 和 B）之间的双向数据传递。</li>
+</ul>
+</li>
+<li><p>根本原因</p>
+<ul>
+<li><code>getIntent()</code>的设计逻辑是 <strong>“获取启动当前 Activity 的初始 Intent”</strong>，其数据仅来源于首次启动该 Activity 时传入的 Intent。若后续其他 Activity（如 B）试图通过<code>intent.putExtra()</code>向其传递新数据，原 Activity（如 A）的<code>getIntent()</code>无法感知或更新这些新数据 —— 因为<code>getIntent()</code>不支持动态接收后续传入的 Intent 数据，仅绑定首次启动时的原始 Intent。</li>
+</ul>
+</li>
+<li><p>分启动模式实例验证</p>
+<ul>
+<li>Activity 的启动模式（launchMode）会影响实例创建逻辑，进一步暴露双向传递的失效场景：<ul>
+<li>1.<strong>标准模式（standard，默认）</strong>：看似可行，实则数据混乱<ul>
+<li>现象：A 启动 B 时，A 通过<code>intent.putExtra(&quot;data&quot;, &quot;A的数据&quot;)</code>向 B 传递数据，B 可通过<code>getIntent()</code>获取；B 试图通过<code>intent.putExtra(&quot;reply&quot;, &quot;B的回复&quot;)</code>并<code>startActivity(intent)</code>启动 A 时，A 表面上能通过<code>getIntent()</code>获取 “B 的回复”。</li>
+<li>本质：standard 模式下，每次<code>startActivity()</code>都会创建新的 Activity 实例。此时 A 获取的 “B 的回复”，实际是新创建的 A 实例从启动它的 B 那里获取的数据，而非原来的 A 实例。两个 A 实例是相互独立的，原始 A 实例始终无法获取 B 的回复。</li>
+</ul>
+</li>
+<li>2.<strong>单实例模式（singleInstance）</strong>：直接失效<ul>
+<li>现象：若 A 的启动模式为singleInstance（整个系统中仅存在一个 A 实例），B 通过<code>intent.putExtra(&quot;reply&quot;, &quot;B的回复&quot;)</code>并<code>startActivity(intent)</code>启动 A 时，A 调用<code>getIntent()</code>获取的仍是首次启动时的原始数据，永远无法得到 B 传递的新数据。</li>
+<li>本质：singleInstance 模式下，系统会复用已存在的 A 实例，而<code>getIntent()</code>绑定的是 A 首次启动时的 Intent，后续 B 传入的新 Intent 不会更新到已有 A 实例的<code>getIntent()</code>中，导致双向传递完全失效。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-隐式-Intent（不明确指定目标-Activity，通过-“action-category-data”-匹配，适用于跨应用跳转或调用系统功能）"><a href="#2-隐式-Intent（不明确指定目标-Activity，通过-“action-category-data”-匹配，适用于跨应用跳转或调用系统功能）" class="headerlink" title="2. 隐式 Intent（不明确指定目标 Activity，通过 “action+category+data” 匹配，适用于跨应用跳转或调用系统功能）"></a>2. 隐式 Intent（不明确指定目标 Activity，通过 “action+category+data” 匹配，适用于跨应用跳转或调用系统功能）</h3><ul>
+<li><strong>调用系统浏览器打开网页</strong>：无需指定浏览器 Activity，通过 action 匹配系统浏览器：</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Button</span> <span class="variable">btnOpenWeb</span> <span class="operator">=</span> findViewById(R.id.btn_open_web);</span><br><span class="line">btnOpenWeb.setOnClickListener(v -&gt; &#123;</span><br><span class="line">    <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">    <span class="comment">// 设置action：ACTION_VIEW（表示查看数据）</span></span><br><span class="line">    intent.setAction(Intent.ACTION_VIEW);</span><br><span class="line">    <span class="comment">// 设置data：指定要查看的网址（需封装为Uri对象）</span></span><br><span class="line">    <span class="type">Uri</span> <span class="variable">uri</span> <span class="operator">=</span> Uri.parse(<span class="string">&quot;https://www.baidu.com&quot;</span>);</span><br><span class="line">    intent.setData(uri);</span><br><span class="line">    <span class="comment">// 启动Activity（系统会自动匹配支持ACTION_VIEW+http协议的Activity，即浏览器）</span></span><br><span class="line">    startActivity(intent);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li><p><strong>自定义隐式 Intent（应用内部跨模块跳转，或允许其他应用调用）</strong>：</p>
+<ul>
+<li><p>第一步：在 AndroidManifest.xml 中为目标 Activity 配置 intent-filter（设置 action、category、data）：</p>
+<div class="code-container" data-rel="Xml"><figure class="iseeu highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:name</span>=<span class="string">&quot;.CustomActivity&quot;</span></span></span><br><span class="line"><span class="tag">    <span class="attr">android:exported</span>=<span class="string">&quot;true&quot;</span>&gt;</span> <span class="comment">&lt;!-- 允许外部应用调用，若仅内部使用可设为false --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 自定义action（需唯一，建议用包名+action名） --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">&quot;com.example.firstandroiddemo.ACTION_CUSTOM&quot;</span> /&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- category：默认类别，必须添加，否则无法匹配 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">&quot;android.intent.category.DEFAULT&quot;</span> /&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 自定义data：指定数据协议和主机名（可选，根据需求配置） --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">data</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:scheme</span>=<span class="string">&quot;custom&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">android:host</span>=<span class="string">&quot;example&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br></pre></td></tr></table></figure></div>
+</li>
+<li><p>第二步：在源 Activity 中创建隐式 Intent 并启动：</p>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Button</span> <span class="variable">btnCustomIntent</span> <span class="operator">=</span> findViewById(R.id.btn_custom_intent);</span><br><span class="line">btnCustomIntent.setOnClickListener(v -&gt; &#123;</span><br><span class="line">    <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>();</span><br><span class="line">    intent.setAction(<span class="string">&quot;com.example.firstandroiddemo.ACTION_CUSTOM&quot;</span>);</span><br><span class="line">    <span class="comment">// 设置data（需与intent-filter中的data匹配）</span></span><br><span class="line">    <span class="type">Uri</span> <span class="variable">uri</span> <span class="operator">=</span> Uri.parse(<span class="string">&quot;custom://example?param=123&quot;</span>); <span class="comment">// 可携带参数</span></span><br><span class="line">    intent.setData(uri);</span><br><span class="line">    <span class="comment">// 检查是否有Activity能匹配该Intent（避免崩溃）</span></span><br><span class="line">    <span class="keyword">if</span> (intent.resolveActivity(getPackageManager()) != <span class="literal">null</span>) &#123;</span><br><span class="line">        startActivity(intent);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        Toast.makeText(MainActivity.<span class="built_in">this</span>, <span class="string">&quot;无匹配的Activity&quot;</span>, Toast.LENGTH_SHORT).show();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></div></li>
+</ul>
+</li>
+</ul>
+<h2 id="（四）任务栈（Task-Stack）概念与应用"><a href="#（四）任务栈（Task-Stack）概念与应用" class="headerlink" title="（四）任务栈（Task Stack）概念与应用"></a>（四）任务栈（Task Stack）概念与应用</h2><ol>
+<li><strong>核心特性</strong>：每个应用默认对应一个任务栈，栈中存放该应用启动的所有 Activity；当用户点击桌面图标启动应用时，若任务栈不存在则创建新栈，将根 Activity（启动页或首页）压入栈；后续跳转的 Activity 依次压入栈顶，返回时栈顶 Activity 出栈，直至栈空，应用进程进入后台（若系统内存不足，进程可能被销毁）。</li>
+<li><strong>常见启动模式（通过 AndroidManifest.xml 中 Activity 的 launchMode 属性设置，解决重复创建 Activity、控制栈中 Activity 实例等问题）</strong><ul>
+<li><strong>standard（默认模式）</strong>：每次启动 Activity 都会创建新实例，无论栈中是否已存在，压入当前任务栈顶（如多次跳转同一 Activity，栈中会有多个实例）。</li>
+<li><strong>singleTop（栈顶复用）</strong>：若目标 Activity 已在栈顶，则直接复用，调用 onNewIntent () 方法接收新 Intent；若不在栈顶，则创建新实例压入栈顶（适用于通知跳转、首页跳转首页等场景，避免重复创建）。</li>
+<li><strong>singleTask（栈内唯一）</strong>：若任务栈中已存在目标 Activity 实例，则将该实例之上的所有 Activity 出栈，使目标 Activity 成为栈顶（调用 onNewIntent ()）；若不存在，则创建新实例压入栈（适用于首页、个人中心等需唯一实例的场景）。</li>
+<li><strong>singleInstance（单独任务栈）</strong>：目标 Activity 独占一个新任务栈，且该任务栈中只有这一个 Activity 实例；其他应用启动该 Activity 时，直接复用已存在的实例（适用于系统级应用或需全局唯一的页面，如电话、地图定位页面）。</li>
+</ul>
+</li>
+</ol>
+<h2 id="（五）实践验证"><a href="#（五）实践验证" class="headerlink" title="（五）实践验证"></a>（五）实践验证</h2><ul>
+<li>1.在新建的Activity界面中，添加各种生命周期的回调函数, 在Activity每种生命周期的回调函数中添加对应的log语句。</li>
+</ul>
+<div class="code-container" data-rel="Java"><figure class="iseeu highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestActActivity</span> <span class="keyword">extends</span> <span class="title class_">AppCompatActivity</span> &#123;</span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 检验Activity的生命周期</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">TAG</span> <span class="operator">=</span> <span class="string">&quot;TestActActivity&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Button btnAlert,btnDialogAct;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onCreate</span><span class="params">(Bundle savedInstanceState)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onCreate(savedInstanceState);</span><br><span class="line">        EdgeToEdge.enable(<span class="built_in">this</span>);</span><br><span class="line">        setContentView(R.layout.activity_test_act);</span><br><span class="line"></span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onCreate方法执行：开始初始化页面&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 获取当前Activity的ComponentName</span></span><br><span class="line">            <span class="type">ComponentName</span> <span class="variable">componentName</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ComponentName</span>(<span class="built_in">this</span>, <span class="built_in">this</span>.getClass());</span><br><span class="line">            <span class="comment">// 获取当前Activity的ActivityInfo</span></span><br><span class="line">            <span class="type">ActivityInfo</span> <span class="variable">activityInfo</span> <span class="operator">=</span> getPackageManager().getActivityInfo(componentName, PackageManager.GET_META_DATA);</span><br><span class="line">            <span class="comment">// 打印启动模式</span></span><br><span class="line">            <span class="keyword">if</span> (activityInfo.launchMode == ActivityInfo.LAUNCH_MULTIPLE) &#123;</span><br><span class="line">                LogUtil.d(TAG, <span class="string">&quot;LaunchMode：standard&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TOP) &#123;</span><br><span class="line">                LogUtil.d(TAG, <span class="string">&quot;LaunchMode：singleTop&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_TASK) &#123;</span><br><span class="line">                LogUtil.d(TAG, <span class="string">&quot;LaunchMode：singleTask&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (activityInfo.launchMode == ActivityInfo.LAUNCH_SINGLE_INSTANCE) &#123;</span><br><span class="line">                LogUtil.d(TAG, <span class="string">&quot;LaunchMode：singleInstance&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                LogUtil.d(TAG, <span class="string">&quot;LaunchMode：unknown&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (PackageManager.NameNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        init();</span><br><span class="line">        <span class="comment">//操作栏添加导航按钮</span></span><br><span class="line">        <span class="type">ActionBar</span> <span class="variable">actionBar</span> <span class="operator">=</span> getSupportActionBar();</span><br><span class="line">        <span class="keyword">assert</span> actionBar != <span class="literal">null</span>;</span><br><span class="line">        actionBar.setDisplayHomeAsUpEnabled(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">onOptionsItemSelected</span><span class="params">(<span class="meta">@NonNull</span> MenuItem item)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (item.getItemId()==android.R.id.home)&#123;</span><br><span class="line">            LogUtil.d(TAG,<span class="string">&quot;点击了返回按钮！&quot;</span>);</span><br><span class="line">            finish();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span>&#123;</span><br><span class="line">        btnAlert = (Button) findViewById(R.id.btn_alert);</span><br><span class="line">        btnAlert.setOnClickListener(<span class="keyword">new</span> <span class="title class_">View</span>.OnClickListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onClick</span><span class="params">(View v)</span> &#123;</span><br><span class="line">                AlertDialog.<span class="type">Builder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">AlertDialog</span>.Builder(TestActActivity.<span class="built_in">this</span>);</span><br><span class="line">                builder.setTitle(<span class="string">&quot;提示：&quot;</span>);</span><br><span class="line">                builder.setMessage(<span class="string">&quot;AlertDialog已启动&quot;</span>);</span><br><span class="line">                builder.setCancelable(<span class="literal">true</span>); <span class="comment">// 点击对话框以外的区域是否让对话框消失</span></span><br><span class="line">                builder.show();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        btnDialogAct = (Button) findViewById(R.id.btn_dialogact); <span class="comment">// DialogActivity</span></span><br><span class="line">        btnDialogAct.setOnClickListener(<span class="keyword">new</span> <span class="title class_">View</span>.OnClickListener() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onClick</span><span class="params">(View v)</span> &#123;</span><br><span class="line">                <span class="type">Intent</span> <span class="variable">intent</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Intent</span>(TestActActivity.<span class="built_in">this</span>, TestDialogActivity.class);</span><br><span class="line">                startActivity(intent);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onStart</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onStart();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onStart方法执行：Activity 由 “不可见” 变为 “可见” &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onResume</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onResume();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onResume方法执行：Activity 获取焦点（可与用户交互）&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onPause</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onPause();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onPause方法执行：Activity 失去焦点，仍可见&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onStop</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onStop();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onStop方法执行：Activity 完全不可见&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onDestroy</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onDestroy();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onDestroy方法执行：Activity 销毁&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">onRestart</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>.onRestart();</span><br><span class="line">        LogUtil.d(TAG,<span class="string">&quot;onRestart方法执行：Activity 由 “销毁状态” 重新启动&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></div>
+
+<ul>
+<li>2.模拟不同的操作场景，触发出每种Activity生命周期所对应的log打印。<ul>
+<li>a.从MainActivity跳转到TestActActivity后打印的log如下 <strong>（验证activity的启动的生命周期）</strong><ul>
+<li><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://origin.picgo.net/2025/09/01/image6a93e81ce0d86463.png"
+                      alt="image"
+                ></li>
+</ul>
+<!-- - image.png --></li>
+<li>b.点击标题栏上的返回键后打印的log如下 <strong>（验证activity的销毁的生命周期）</strong><ul>
+<li><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://origin.picgo.net/2025/09/01/image-18869df283ef466c4.png"
+                      alt="image 1"
+                ></li>
+</ul>
+</li>
+<li>c.点击<code>Alert按钮</code>，弹出对话框<ul>
+<li>无任何反应，原因参见<code>（二）3. 遇到的问题与解决</code>:<a href="#section1">(二)</a></li>
+</ul>
+</li>
+<li>d.点击<code>Dialog Activity按钮</code>，弹出DialogActivity后打印的内容如下 <strong>（验证onPause的单独调用条件）</strong>：<ul>
+<li><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://origin.picgo.net/2025/09/01/image-283c56d84921047cf.png"
+                      alt="image 2"
+                ></li>
+<li>在销毁DialogActivity后打印的内容如下：</li>
+<li><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://origin.picgo.net/2025/09/01/image-3bb5a526a46b38c48.png"
+                      alt="image 3"
+                ></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>标题:</strong> Android Activity</li>
+        <li><strong>作者:</strong> Alistair Xie</li>
+        <li><strong>创建于
+                :</strong> 2025-08-28 21:36:23</li>
+        
+            <li>
+                <strong>更新于
+                    :</strong> 2025-09-02 21:51:11
+            </li>
+        
+        <li>
+            <strong>链接:</strong> https://alistairxie.github.io/2025/08/28/AndroidNotes-Android-Activity/
+        </li>
+        <li>
+            <strong>
+                版权声明:
+            </strong>
+            
+
+            
+                本文章采用 <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a> 进行许可。
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/Android/">#Android</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2025/08/29/AndroidNotes-LinearLayout/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">LinearLayout</span>
+						<span class="post-nav-item">上一篇</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2025/08/27/AndroidNotes-ADB/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">ADB</span>
+						<span class="post-nav-item">下一篇</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        评论
+    </div>
+    
+
+        
+            
+    <div id="giscus-container"></div>
+    <script data-swup-reload-script defer>
+        async function loadGiscus() {
+            const giscusConfig = {
+                'src': 'https://giscus.app/client.js',
+                'data-repo': 'alistairxie/giscus',
+                'data-repo-id': 'R_kgDOPm5YHw',
+                'data-category': 'Announcements',
+                'data-category-id': 'DIC_kwDOPm5YH84CuxKP',
+                'data-mapping': 'url',
+                'data-strict': '0',
+                'data-reactions-enabled': '1',
+                'data-emit-metadata': '1',
+                'data-theme': 'preferred_color_scheme',
+                'data-lang': 'zh-CN',
+                'data-input-position': 'bottom',
+                'data-loading': 'lazy',
+                'crossorigin': 'anonymous',
+                'async': true
+            }
+            const giscusScript = document.createElement('script');
+            for (const key in giscusConfig) {
+                giscusScript.setAttribute(key, giscusConfig[key]);
+            }
+            document.getElementById('giscus-container').appendChild(giscusScript);
+        }
+        if ('true') {
+            let loadGiscusTimeout = setTimeout(() => {
+                loadGiscus();
+                clearTimeout(loadGiscusTimeout);
+            }, 1000);
+        } else {
+            document.addEventListener('DOMContentLoaded', loadGiscus);
+        }
+    </script>
+
+
+        
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">目录</div>
+		<div class="page-title">Android Activity</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E4%B8%80%EF%BC%89Activity-%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">（一）Activity 基础概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E4%BA%8C%EF%BC%89Activity-%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F"><span class="nav-number">2.</span> <span class="nav-text">（二）Activity 生命周期</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E4%B8%89%EF%BC%89Activity-%E8%B7%B3%E8%BD%AC%E4%B8%8E-Intent-%E4%BD%BF%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">（三）Activity 跳转与 Intent 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%98%BE%E5%BC%8F-Intent%EF%BC%88%E6%98%8E%E7%A1%AE%E6%8C%87%E5%AE%9A%E7%9B%AE%E6%A0%87-Activity%EF%BC%8C%E9%80%82%E7%94%A8%E4%BA%8E%E5%BA%94%E7%94%A8%E5%86%85%E9%83%A8%E8%B7%B3%E8%BD%AC%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">1. 显式 Intent（明确指定目标 Activity，适用于应用内部跳转）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%9A%90%E5%BC%8F-Intent%EF%BC%88%E4%B8%8D%E6%98%8E%E7%A1%AE%E6%8C%87%E5%AE%9A%E7%9B%AE%E6%A0%87-Activity%EF%BC%8C%E9%80%9A%E8%BF%87-%E2%80%9Caction-category-data%E2%80%9D-%E5%8C%B9%E9%85%8D%EF%BC%8C%E9%80%82%E7%94%A8%E4%BA%8E%E8%B7%A8%E5%BA%94%E7%94%A8%E8%B7%B3%E8%BD%AC%E6%88%96%E8%B0%83%E7%94%A8%E7%B3%BB%E7%BB%9F%E5%8A%9F%E8%83%BD%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2. 隐式 Intent（不明确指定目标 Activity，通过 “action+category+data” 匹配，适用于跨应用跳转或调用系统功能）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E5%9B%9B%EF%BC%89%E4%BB%BB%E5%8A%A1%E6%A0%88%EF%BC%88Task-Stack%EF%BC%89%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">（四）任务栈（Task Stack）概念与应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%88%E4%BA%94%EF%BC%89%E5%AE%9E%E8%B7%B5%E9%AA%8C%E8%AF%81"><span class="nav-number">5.</span> <span class="nav-text">（五）实践验证</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">嘿嘿</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2025</span>
+              -
+            
+            2025&nbsp;&nbsp;<i class="fa-regular fa-computer-classic"></i>&nbsp;&nbsp;<a href="/">Alistair Xie</a>
+            
+                
+                <p class="post-count space-x-0.5">
+                    <span>
+                        共撰写了 23 篇文章
+                    </span>
+                    
+                        <span>
+                            共 61.4k 字
+                        </span>
+                    
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">访问人数</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">总访问量</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">由 <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a> 驱动</span>
+            <span class="text-sm lg:block">主题&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
+        </div>
+        
+        
+            <div>
+                博客已运行 <span class="odometer" id="runtime_days" ></span> 天 <span class="odometer" id="runtime_hours"></span> 小时 <span class="odometer" id="runtime_minutes"></span> 分钟 <span class="odometer" id="runtime_seconds"></span> 秒
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
+</div>
+
+	
+
+</main>
+
+
+
+<script src="/js/build/libs/Swup.min.js"></script>
+
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
+
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
+        
+    });
+</script>
+
+
+
+
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/tools/runtime.js"></script>
+
+    
+<script src="/js/build/libs/odometer.min.js"></script>
+
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
+
+
+
+
+  
+<script src="/js/build/libs/Typed.min.js"></script>
+
+  
+<script src="/js/build/plugins/typed.js" type="module"></script>
+
+
+
+
+    
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.8.2/dist/mermaid.min.js"></script>
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
+	<div id="aplayer"></div>
+
+<script src="/js/build/libs/APlayer.min.js"></script>
+
+
+<script src="/js/build/plugins/aplayer.js"></script>
+
+
+	
+</body>
+
+</html>
